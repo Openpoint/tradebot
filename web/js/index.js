@@ -1,55 +1,54 @@
-"use strict";
+"use strict"
 
 const chart = document.getElementById('chart');
-const file = "two";
-function Plot(data){
-	Plotly.plot(chart,data,style);
+const socket = io();
+
+
+socket.on('all',(data)=>{
+	Object.keys(data).forEach((key)=>{
+		Make[key](data[key])
+	})
+	const layers = [];
+	Object.keys(plots).forEach((key)=>{
+		layers.push(plots[key]);
+	})
+	Plotly.plot(chart,layers,style);
+})
+
+const Make = {
+	trade:function(data){
+		data.forEach((item)=>{
+			let time = new Date(item.timestamp);
+			plots.trade.x.push(time);
+			plots.trade.y.push(item.price);
+			plots.rate.x.push(time);
+			plots.inertia.x.push(time);
+			plots.inertia.y.push(item.inertia);
+		})
+	},
+	sell:function(data){
+		data.forEach((item)=>{
+			let time = new Date(item.timestamp);
+			plots.sell.x.push(time);
+			plots.sell.y.push(item.price);
+		})
+	},
+	buy:function(data){
+		data.forEach((item)=>{
+			let time = new Date(item.timestamp);
+			plots.buy.x.push(time);
+			plots.buy.y.push(item.price);
+		})
+	},
+	orders:function(data){
+		data.forEach((item)=>{
+			let time = new Date(item.timestamp);
+			plots.orderv.x.push(time);
+			plots.orderv.y.push(item.volume*-1);
+		})
+	},
 }
 
-fetch('http://localhost:8080/trade?file='+file).then((response)=>{
-    return response.json();
-}).then((data)=>{
-    data.forEach((item)=>{
-        let time = new Date(item.timestamp);
-        plots.trade.x.push(time);
-        plots.trade.y.push(item.price);
-        plots.rate.x.push(time);
-        plots.inertia.x.push(time);
-        plots.inertia.y.push(item.inertia);
-	})
-	Plot([plots.trade,plots.rate,plots.inertia]);
-})
-fetch('http://localhost:8080/sell?file='+file).then((response)=>{
-    return response.json();
-}).then((data)=>{
-	data.forEach((item)=>{
-		let time = new Date(item.timestamp);
-		plots.sell.x.push(time);
-		plots.sell.y.push(item.price);
-	})
-	Plot([plots.sell]);	
-})
-
-fetch('http://localhost:8080/buy?file='+file).then((response)=>{
-    return response.json();
-}).then((data)=>{
-	data.forEach((item)=>{
-		let time = new Date(item.timestamp);
-		plots.buy.x.push(time);
-		plots.buy.y.push(item.price);
-	})
-	Plot([plots.buy]);
-})
-fetch('http://localhost:8080/orders?file='+file).then((response)=>{
-    return response.json();
-}).then((data)=>{
-	data.forEach((item)=>{
-		let time = new Date(item.timestamp);
-		plots.orderv.x.push(time);
-		plots.orderv.y.push(item.volume*-1);
-	})
-	Plot([plots.orderv]);
-})
 const plots = {
 	rate:{
         x:[],

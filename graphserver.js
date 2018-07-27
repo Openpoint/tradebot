@@ -1,9 +1,12 @@
 "use strict";
 const fs = require('fs');
-const express = require('express');
+const express = require('express')
 const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 
-let filename = "tradedata.txt";
+
+let filename = "tradedata_two.txt";
 
 function getData(){
 	const data = {};
@@ -68,25 +71,23 @@ function getData(){
 	return data;
 }
 
+io.on('connection', function(client){
+	const data = getData();
+	client.emit("all",data);
+});
 
+app.use("/js", express.static(__dirname + "/web/js"));
+app.use("/css", express.static(__dirname + "/web/css"));
+/*
 app.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
+*/
 
-app.get('/:type',function(req,res){
-	if(req.query.file){
-		filename = "tradedata_"+req.query.file+".txt";
-	}else{
-		filename = "tradedata.txt";
-	}
-	let type = req.params.type;
-	const data = getData();
-	if(data && data[type]){
-		res.send(JSON.stringify(data[type]));
-	}else{
-		res.status(404).send('Not Found.')
-	}
-})
-app.listen(8080);
+app.get('/', function(req, res){
+	res.sendFile(__dirname + '/web/index.html');
+});
+
+server.listen(8080);
