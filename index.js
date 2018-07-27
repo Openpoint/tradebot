@@ -1,18 +1,27 @@
 "use strict";
 
+const fs = require('fs');
+if(!fs.existsSync('settings.json')){
+	fs.createReadStream('./settings_temp.json').pipe(fs.createWriteStream('./settings.json'));
+	console.log("Please fill in account details in <root>/settings.json, then start the application")
+	return;
+}
+
+
 const Pusher = require("pusher-js");
 const pusher = new Pusher("de504dc5763aeef9ff52");
 
 const tradesChannel = pusher.subscribe('live_trades');
 const orderBookChannel = pusher.subscribe('order_book');
 
-const fs = require('fs');
+
 const crypto = require('crypto');
 const request = require('request');
 
-const api_key = "5INScMF2zQGtxptLwaHfVtgMkFccf9ZP";
-const api_secret = "F2TC3mxgkyEWe0jsWk2c4JH1noQ89Hce";
-const user_id = "uayy7084";
+const settings = require('./settings.json');
+const api_key = settings.markets.bitstamp.api_key;
+const api_secret = settings.markets.bitstamp.api_secret;
+const user_id = settings.markets.bitstamp.user_id;
 
 const init_coin = 1;
 const init_fiat = 0;
@@ -32,6 +41,9 @@ let peak_inertia = 0;
 let last_price;
 let active_price;
 let prev_price = 0;
+
+
+
 
 setTimeout(()=>{
 	init = true;
