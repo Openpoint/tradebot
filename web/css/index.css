@@ -1,0 +1,10 @@
+body,html{
+    position:relative;
+}
+*{
+    box-sizing: border-box;
+}
+#chart{
+    height:600px;
+    width:100vw;
+}
