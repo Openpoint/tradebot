@@ -1,5 +1,8 @@
 "use strict";
 
+const History = require('./recorder/getter.js');
+const path = require('path');
+const LZString = require('lz-string');
 const fs = require('fs');
 if(!fs.existsSync('settings.json')){
 	fs.createReadStream('./settings_temp.json').pipe(fs.createWriteStream('./settings.json'));
@@ -26,11 +29,12 @@ const user_id = settings.markets.bitstamp.user_id;
 const init_coin = 1;
 const init_fiat = 0;
 const startup_price = [];
+const inertias = [];
 
 let coin = init_coin;
 let fiat = init_fiat;
 //let ready = true;
-let init = false;
+let init = true;
 let first_trade = false;
 let order_book = [];
 let start_time = 1*60000;
@@ -38,76 +42,51 @@ let trade_dir = "sell";
 let trade_inertia = 0;
 let prev_inertia = 0;
 let peak_inertia = 0;
+
 let last_price;
 let active_price;
-let prev_price = 0;
-
-
+//let prev_price = 0;
 
 
 setTimeout(()=>{
 	init = true;
 },start_time)
 
-const logfile = 'tradedata_two.txt';
+const logfile = path.join(__dirname,settings.datafile);
 if(fs.existsSync(logfile)) fs.unlinkSync(logfile);
-const logger = fs.createWriteStream(logfile,{flags:'a'});
+const logger = fs.createWriteStream(logfile,{
+	flags:'a',
+	encoding:'ucs2'
+});
 
+const history = History();
+
+history.orders.forEach((order)=>{
+    addOrder(order);
+})
+history.trades.forEach((trade)=>{
+    addTrade(trade);
+})
+const io = require('./graphserver.js');
 tradesChannel.bind('trade', function (data) {
     addTrade(data);
 })
 
 orderBookChannel.bind('data', function (data) {
-
-    let bids = {vol:0,price:0};
-    let asks = {vol:0,price:0};
-    let average = {vol:0,price:0};
-    let len = data.bids.length;
-    const now = Date.now();
-
-    data.bids.forEach((b)=>{
-        bids.vol+=b[1]*1;
-        bids.price+=b[0]*1;
-    })
-    data.asks.forEach((a)=>{
-        asks.vol+=a[1]*1;
-        asks.price+=a[0]*1;
-    })
-    bids.price = bids.price/len;
-	asks.price = asks.price/len;
-	order_book.push({
-		vol:asks.vol-bids.vol,
-		price:asks.price-bids.price
-	})
-	if(init) order_book.shift();
-	order_book.forEach((order)=>{
-		average.vol+=order.vol;
-		average.price+=order.price;
-	})
-	//console.log("Order volume:"+(asks.vol-bids.vol),"Order price:"+(asks.price-bids.price));
-	logger.write('orders|'+now+'|'+average.vol+'|'+average.price+'\n');
-	/*
-    let d = {
-        timestamp:now,
-        vol:asks.vol-bids.vol,
-        price:asks.price-bids.price
-    }
-    order_book.push(d);
-    order_book = order_book.filter((da)=>{
-        if(da.timestamp < now - start_time) return false;
-        average.vol += da.vol;
-        average.price += da.price;
-        return true;
-    })
-    average.vol = average.vol/order_book.length;
-    average.price = average.price/order_book.length;
-    if(init){
-        console.log(average,trade_inertia);
-        logger.write('orders|'+now+'|'+average.vol+'|'+average.price+'\n');
-	}
-	*/ 
+    addOrder(data);
 })
-
+function write(type,data){
+	let json = {};
+    json[type] = data;
+    try{
+        json = JSON.stringify(json);
+    }
+    catch(e){
+        return;
+    }
+    logger.write(LZString.compress(json)+'\n');
+    //logger.write(JSON.stringify(json)+'\n');
+}
 function Fee(val){
     return val*(0.25/100);
 }
@@ -140,7 +119,12 @@ function checkProfit(dir,trade){
         dir==='sell'?peak_inertia/inertia_bias > trade_inertia:peak_inertia/inertia_bias < trade_inertia,
         dir==='sell'?!bid||active_price > bid:active_price < bid
     );
-    logger.write(dir+'profit|'+Date.now()+'|'+peak_inertia/inertia_bias+'|'+bid+'\n');
+	//logger.write(dir+'profit|'+(trade.timestamp*1000)+'|'+peak_inertia/inertia_bias+'|'+bid+'\n');
+	write(dir+'profit',{
+		timestamp:trade.timestamp*1000,
+		resistance:peak_inertia/inertia_bias,
+		target:bid
+	})
     if(dir === 'sell' && peak_inertia/inertia_bias > trade_inertia && (!bid||active_price > bid)) return true;
     if(dir === 'buy' && peak_inertia/inertia_bias < trade_inertia && active_price < bid) return true;
     return false;
@@ -170,7 +154,13 @@ function buy(trade){
         coin = fiat/trade.price;
         fiat = 0;  
         console.log('$'+fiat,'BTC:'+coin);
-        logger.write('buy|'+Date.now()+'|'+trade.price+'|'+trade.amount+'|'+Bid(trade.price)+'\n')
+		//logger.write('buy|'+(trade.timestamp*1000)+'|'+trade.price+'|'+trade.amount+'|'+Bid(trade.price)+'\n');
+		write('buy',{
+			timestamp:trade.timestamp*1000,
+			price:trade.price,
+			volume:trade.amount,
+			target:Bid(trade.price)
+		})
         trade_dir = "sell";
         /* 
     },(err)=>{
@@ -199,7 +189,13 @@ function sell(trade){
         fiat = fiat - (fiat*(.25/100));
         coin = 0;
         console.log('$'+fiat,'BTC:'+coin);
-        logger.write('sell|'+Date.now()+'|'+trade.price+'|'+trade.amount+'|'+Bid(trade.price)+'\n');
+		//logger.write('sell|'+(trade.timestamp*1000)+'|'+trade.price+'|'+trade.amount+'|'+Bid(trade.price)+'\n');
+		write('sell',{
+			timestamp:trade.timestamp*1000,
+			price:trade.price,
+			volume:trade.amount,
+			target:Bid(trade.price)
+		})
         trade_dir = "buy";
     /*    
     },(err)=>{
@@ -208,38 +204,75 @@ function sell(trade){
     })
     */
 }
+function addOrder(data){
+
+    let bids = {vol:0,price:0,weight:0};
+    let asks = {vol:0,price:0,weight:0};
+    let average = {vol:0,price:0,weight:0};
+    let blen = data.bids.length;
+    let alen = data.asks.length;
+    const now = data.timestamp*1000;
+
+    data.bids.forEach((b)=>{
+        let v = b[1]*1;
+        let p = b[0]*1;
+        bids.vol+=v;
+        bids.price+=p;
+        bids.weight = p*v;
+    })
+    data.asks.forEach((a)=>{
+        let v = a[1]*1;
+        let p = a[0]*1;
+        asks.vol += v;
+        asks.price += p;
+        asks.weight = p*v;
+    })
+    bids.price = bids.price/blen;
+    bids.weight = bids.weight/blen;
+    asks.price = asks.price/alen;
+    asks.weight = asks.weight/alen;
+
+	order_book.push({
+		vol:Math.round(bids.vol-asks.vol),
+        price:Math.round(bids.price-asks.price),
+        weight:Math.round(bids.weight-asks.weight)
+	})
+	if(order_book.length > (10*60)) order_book.shift();
+	order_book.forEach((order)=>{
+		average.vol += order.vol;
+        average.price += order.price;
+        average.weight += order.weight;
+	})
+	//console.log("Order volume:"+(asks.vol-bids.vol),"Order price:"+(asks.price-bids.price));
+	//logger.write('orders|'+now+'|'+average.vol+'|'+average.price+'|'+average.weight+'\n');
+	write('orders',{
+		timestamp:now,
+		volume:average.vol,
+		price:average.price,
+		weight:average.weight
+	})
+}
 function addTrade(trade){
-    const now = Date.now();
+    const now = trade.timestamp*1000;
     let rate;
       
-    trade.timestamp = now;
+    //trade.timestamp = now;
     active_price = trade.price;
-	trade.inertia = prev_price?(trade.price - prev_price)*trade.amount:0;
-	prev_price = trade.price;
-	trade_inertia += trade.inertia;
+    //trade.inertia = prev_price?(trade.price - prev_price)*trade.amount:0;
+    trade.inertia = trade.price*trade.amount;
+	//prev_price = trade.price;
+    trade.type?trade_inertia -= trade.inertia:trade_inertia += trade.inertia;
+    inertias.push(trade_inertia);
+    if(inertias.length > 100) inertias.shift();
+    trade_inertia = inertias.reduce((a, b) => a + b, 0)/inertias.length;
+    trade_inertia = Math.round(trade_inertia);
+
 	if(!first_trade){
 		startup_price.push(trade.price);
 		last_price = startup_price.reduce((a, b) => a + b,0)/startup_price.length;
 		console.log("startup price:"+last_price)
 	}
-	/*
-    if(live_trades.length){
-        let prev_price = live_trades[live_trades.length-1].price;
-        
-    } else {
-        trade.inertia = 0;
-    }
-    live_trades.push(trade);
-    live_trades = live_trades.filter((t)=>{       
-        if(t.timestamp < now - trade_window) {
-            init = true;
-            return false;
-        }
-        trade_inertia += t.inertia;
-        return true;
-	})
-	*/
-    trade.average_inertia = trade_inertia;
+
     if((prev_inertia > 0 && trade_inertia < 0)||(prev_inertia < 0 && trade_inertia > 0)){
         console.log('-------------------SWING----------------------------');
     }
@@ -248,7 +281,12 @@ function addTrade(trade){
 
 	//rate = live_trades.length/(trade_window/60000);
 	console.log(trade.price+' : '+trade_inertia+' : '+rate+'/minute');
-	logger.write('trade|'+now+'|'+trade.price+'|'+trade_inertia+'|'+rate+'\n');
+	//logger.write('trade|'+now+'|'+trade.price+'|'+trade_inertia+'|'+rate+'\n');
+	write('trade',{
+		timestamp:now,
+		price:trade.price,
+		inertia:trade_inertia
+	})
 	
 	if(trade_dir === 'sell' && trade_inertia > peak_inertia) peak_inertia = trade_inertia;
 	if(trade_dir === 'buy' && trade_inertia < peak_inertia) peak_inertia = trade_inertia;

@@ -1,72 +1,29 @@
 "use strict";
 const fs = require('fs');
+const path = require('path');
+const LZString = require('lz-string');
 const express = require('express')
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-
-
-let filename = "tradedata_two.txt";
+const settings = require('./settings.json');
+const filename = path.join(__dirname,settings.datafile);
 
 function getData(){
 	const data = {};
 	if(!fs.existsSync(filename)) return false;
-	let raw = fs.readFileSync(filename,'utf8');
+	let raw = fs.readFileSync(filename,'ucs2');
 	raw = raw.split('\n');
-	raw = raw.map((line)=>{
-		return line.split('|');
-	})
-	raw.forEach((x)=>{	
-		let type = x[0];
-		if(!type) return;
-		if(!data[type]) data[type]=[];
-		switch(type){
-			case 'trade':
-				data[type].push({
-					timestamp:x[1]*1,
-					price:x[2]*1,
-					inertia:x[3]*1,
-					rate:x[4]*1
-				})
-				break;
-			case 'orders':
-				data[type].push({
-					timestamp:x[1]*1,
-					volume:x[2]*1,
-					price:x[3]*1
-				})
-				break;
-			case 'buy':
-				data[type].push({
-					timestamp:x[1]*1,
-					price:x[2]*1,
-					volume:x[3]*1,
-					bid:x[4]*1					
-				})
-				break;
-			case 'sell':
-				data[type].push({
-					timestamp:x[1]*1,
-					price:x[2]*1,
-					volume:x[3]*1,
-					bid:x[4]*1					
-				})
-				break;
-			case 'buyprofit':
-				data[type].push({
-					timestamp:x[1]*1,
-					resistance:x[2]*1,
-					target:x[3]==='undefined'?null:x[3]*1	
-				})
-				break;
-			case 'sellprofit':
-				data[type].push({
-					timestamp:x[1]*1,
-					resistance:x[2]*1,
-					target:x[3]==='undefined'?null:x[3]*1					
-				})
-				break;
+	raw.forEach((item)=>{
+		item = LZString.decompress(item);
+		try{
+			item = JSON.parse(item);
 		}
+		catch(e){return};
+		if(!item) return;
+		let key = Object.keys(item)[0];
+		if(!data[key])data[key] = [];
+		data[key].push(item[key]);
 	})
 	return data;
 }
@@ -78,6 +35,7 @@ io.on('connection', function(client){
 
 app.use("/js", express.static(__dirname + "/web/js"));
 app.use("/css", express.static(__dirname + "/web/css"));
+app.use("/node_modules", express.static(__dirname + "/node_modules"));
 /*
 app.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -90,4 +48,6 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/web/index.html');
 });
 
-server.listen(8080);
+server.listen(settings.port);
+
+module.exports = io;

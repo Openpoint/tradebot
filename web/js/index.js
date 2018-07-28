@@ -1,17 +1,18 @@
 "use strict"
 
 const chart = document.getElementById('chart');
-const socket = io();
+const socket = io(); 
 
 
 socket.on('all',(data)=>{
+
 	Object.keys(data).forEach((key)=>{
-		Make[key](data[key])
+		const key2 = (key==='sellprofit'||key==='buyprofit')?'resistance':key;
+		if(Make[key2]) Make[key2](data[key]);
 	})
-	const layers = [];
-	Object.keys(plots).forEach((key)=>{
-		layers.push(plots[key]);
-	})
+	const layers = Object.keys(plots).map((key)=>{
+		return plots[key];
+	});
 	Plotly.plot(chart,layers,style);
 })
 
@@ -44,9 +45,16 @@ const Make = {
 		data.forEach((item)=>{
 			let time = new Date(item.timestamp);
 			plots.orderv.x.push(time);
-			plots.orderv.y.push(item.volume*-1);
+			plots.orderv.y.push(item.weight*-1);
 		})
 	},
+	resistance:function(data){		
+		data.forEach((item)=>{
+			let time = new Date(item.timestamp);
+			plots.resistance.x.push(time);
+			plots.resistance.y.push(item.resistance)
+		})		
+	}
 }
 
 const plots = {
@@ -63,7 +71,7 @@ const plots = {
     },
     inertia:{
         x:[],
-        y:[],
+		y:[],
         name:'inertia',
 		yaxis:'y2',
 		line:{
@@ -75,7 +83,7 @@ const plots = {
     },
     trade:{
         x:[],
-        y:[],
+		y:[],
 		name:'Price',
 		yaxis:'y3',
 		hoverinfo:"y+name",
@@ -117,7 +125,7 @@ const plots = {
 	},
     orderv:{
         x:[],
-        y:[],
+		y:[],
 		name:'Order book demand',
 		yaxis:'y4',
 		hoverinfo:"y+name",
@@ -126,6 +134,20 @@ const plots = {
 			width:1,
 			shape:"line",
 		}
+	},
+	resistance:{
+        x:[],
+		y:[],
+		name:'Buy/Sell resistance point',
+		yaxis:'y2',
+		hoverinfo:"y+name",
+		line:{
+			dash:'dot',
+			shape:'hv',
+			width:0.5,
+			color:'black'
+		},
+
 	}
 }
 const style = {
