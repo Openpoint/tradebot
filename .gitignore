@@ -1,6 +1,7 @@
 tradedata*
 settings.json
 nohup*
+.vscode
 
 # Logs
 logs

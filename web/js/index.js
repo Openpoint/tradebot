@@ -3,21 +3,10 @@
 const chart = document.getElementById('chart');
 const socket = io(); 
 
-
-socket.on('all',(data)=>{
-
-	Object.keys(data).forEach((key)=>{
-		const key2 = (key==='sellprofit'||key==='buyprofit')?'resistance':key;
-		if(Make[key2]) Make[key2](data[key]);
-	})
-	const layers = Object.keys(plots).map((key)=>{
-		return plots[key];
-	});
-	Plotly.plot(chart,layers,style);
-})
-
 const Make = {
-	trade:function(data){
+	trade:function(data,bulk){
+		
+		if(!Array.isArray(data)) data = [data];
 		data.forEach((item)=>{
 			let time = new Date(item.timestamp);
 			plots.trade.x.push(time);
@@ -26,37 +15,65 @@ const Make = {
 			plots.inertia.x.push(time);
 			plots.inertia.y.push(item.inertia);
 		})
+		if(bulk) return;
+		Plotly.react(chart,layers,layout);
 	},
-	sell:function(data){
+	sell:function(data,bulk){
+		if(!Array.isArray(data)) data = [data];
 		data.forEach((item)=>{
 			let time = new Date(item.timestamp);
 			plots.sell.x.push(time);
 			plots.sell.y.push(item.price);
 		})
+		if(bulk) return;
+		Plotly.react(chart,layers,layout);
 	},
-	buy:function(data){
+	buy:function(data,bulk){
+		if(!Array.isArray(data)) data = [data];
 		data.forEach((item)=>{
 			let time = new Date(item.timestamp);
 			plots.buy.x.push(time);
 			plots.buy.y.push(item.price);
 		})
+		if(bulk) return;
+		Plotly.react(chart,layers,layout);
 	},
-	orders:function(data){
+	orders:function(data,bulk){
+		if(!Array.isArray(data)) data = [data];
+		console.log(data);
 		data.forEach((item)=>{
 			let time = new Date(item.timestamp);
 			plots.orderv.x.push(time);
 			plots.orderv.y.push(item.weight*-1);
 		})
+		if(bulk) return;
+		Plotly.react(chart,layers,layout);
 	},
-	resistance:function(data){		
+	resistance:function(data,bulk){	
+		if(!Array.isArray(data)) data = [data];	
 		data.forEach((item)=>{
 			let time = new Date(item.timestamp);
 			plots.resistance.x.push(time);
 			plots.resistance.y.push(item.resistance)
-		})		
+		})
+		if(bulk) return;
+		Plotly.react(chart,layers,layout);		
 	}
 }
+socket.on('all',(data)=>{
+	console.log(data);
+	Object.keys(data).forEach((key)=>{
+		if(Make[key]) Make[key](data[key],true);
+	})
 
+	Plotly.newPlot(chart,layers,layout);
+})
+Object.keys(Make).forEach((key)=>{
+	socket.on(key,(data)=>{
+		layout.datarevision++;
+		Make[key](data);
+	})	
+})
 const plots = {
 	rate:{
         x:[],
@@ -98,6 +115,7 @@ const plots = {
 		y:[],
 		name:'Buy',
 		yaxis:'y3',
+		hoverinfo:"y+name",
 		marker:{
 			symbol:'circle',
 			size:12,
@@ -113,6 +131,7 @@ const plots = {
 		y:[],
 		name:'Sell',
 		yaxis:'y3',
+		hoverinfo:"y+name",
 		marker:{
 			symbol:'circle',
 			size:12,
@@ -150,7 +169,7 @@ const plots = {
 
 	}
 }
-const style = {
+const layout = {
 	yaxis:{
 		showticklabels:false,
 		showline:false,
@@ -184,7 +203,10 @@ const style = {
 		zerolinewidth:0.1,
 		domain:[0.7,1]
 	},
-	bargroupgap:0.28
+	bargroupgap:0.28,
+	datarevision:0
 }
 
-
+const layers = Object.keys(plots).map((key)=>{
+	return plots[key];
+});

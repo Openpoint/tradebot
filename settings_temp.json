@@ -7,5 +7,6 @@
         }
     },
     "port":9080,
-    "datafile":"tradedata.txt"
+    "datafile":"tradedata.txt",
+    "recorder":false
 }
