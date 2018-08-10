@@ -1,30 +1,19 @@
 "use strict";
 
 global.__rootdir = __dirname;
-global.state = {
-	trade_dir:'sell',
-	trade_inertia:0,
-	order_inertia:0,
-	loading:true
-}
-
+const G = require('./lib/globals.js');
+Object.keys(G.globals).forEach((k)=>{global[k] = G.globals[k]});
 const File = require('./lib/files.js');
 if(!File.ready) return;
 const History = require('./recorder/getter.js');
 const Bitstamp = require('./lib/bitstamp_data.js');
 const Calc = require('./lib/calc.js');
+const tools = require('./lib/tools/calctools.js');
+const web = new require('./lib/graphserver.js').web();
 
-const startup_price = [];
-let coin = 1;
-let fiat = 0;
-let first_trade = false;
-let prev_inertia = 0;
-let peak_inertia = 0;
-let last_price;
-let active_price;
+
 let Buffer = [];
-
-const io = require('./lib/graphserver.js');
+let start_time;
 
 Bitstamp.channels.trades.bind('trade', function (data) {
 	if(state.loading){
@@ -40,147 +29,147 @@ Bitstamp.channels.orders.bind('data', function (data) {
 		data._T = 'orders';
 		Buffer.push(data);
 	}else{
-		addOrder(data);
+		Calc.order(data);
 	}
 })
-
-
-
-function checkProfit(dir,trade){
-	//const inertia_bias = dir === 'sell'?4:2;
-	const inertia_bias = 2;
-	let fee;
-	let bid;
-
-	//if(!last_price && trade.average_inertia <= 0) return false;
-	bid = Calc.bid(last_price);
-
-	console.log(
-		'check '+dir+' profit:',
-		'peak_i:'+peak_inertia/inertia_bias,
-		'trade_i:'+state.trade_inertia,
-		'ap:'+active_price,
-		'lp:'+last_price,
-		'bid:'+bid,
-		dir==='sell'?peak_inertia/inertia_bias > state.trade_inertia:peak_inertia/inertia_bias < state.trade_inertia,
-		dir==='sell'?!bid||active_price > bid:active_price < bid
-	);
-	const item = {
-		timestamp:trade.timestamp*1000,
-		resistance:peak_inertia/inertia_bias,
-		target:bid
-	}
-	if(!state.loading) io.emit('resistance',item);
-	File.write('resistance',item);
-	if(dir === 'sell' && peak_inertia/inertia_bias > state.trade_inertia && (!bid||active_price > bid)) return true;
-	if(dir === 'buy' && peak_inertia/inertia_bias < state.trade_inertia && active_price < bid) return true;
-	return false;
-}
+//let stop = false;
+let trades = 0;
+let frenzies = 0;
+let markets = 0;
+let peak = 0;
+let count= 0;
+let starttime = 0;
 function doTrade(trade){
+	count++;
+	trades+=trade.price;
+	frenzies+=state.rate.frenzy;
+	markets+=state.price.average;
+	//let price = trades/count;
+	let price = state.price.average;
+	let frenzy = frenzies/count;
+	let market = markets/count;
+	if(!peak) peak = state.price.target;
+	if(!starttime) starttime = trade.timestamp;
 
-	const Trade = trade;
-	state.trade_dir === "sell"?sell(Trade):buy(Trade);
-}
-function buy(trade){
+	if(state.trade_dir === 'sell' && price > peak) peak = price;
+	if(state.trade_dir === 'buy' && price < peak) peak = price;
 
-	const profitable = checkProfit('buy',trade);
-	if(!profitable) return;
-	first_trade = true;
-	console.log('BUY');
-	console.log(trade.price);
-	console.log(trade);
 
-	last_price = trade.price;
 
-	fiat = fiat - Calc.fee(fiat);
-	coin = fiat/trade.price;
-	fiat = 0;
-	console.log('$'+fiat,'BTC:'+coin);
-	const item = {
-		timestamp:trade.timestamp*1000,
-		price:trade.price,
-		volume:trade.amount,
-		target:Calc.bid(trade.price)
+
+	if(starttime > trade.timestamp - tools.time(vars.speed.short)) return;
+	function reset(){
+		triggered = false;
+		trades = 0;
+		peak = 0;
+		count = 0;
+		starttime = 0;
+		frenzies=0;
+		console.log('____________________RESET__________________')
 	}
-	if(!state.loading) io.emit('buy',item);
-	File.write('buy',item);
-	state.trade_dir = "sell";
+	
+	let minmarket = 0;
+	let minfrenzy = 0;
+	if(state.trade_dir === 'sell'){
+		if(trade.price < state.price.target){
+			reset();
+			return false;
+		}
+		
+		if(peak-price > 0){			
+			console.log(tools.timestamp(trade.timestamp)+" |","Price:"+Math.round(trade.price)+" |","Drop:"+Math.round(peak-price)+" |","Average:"+state.price.average.toPrecision(4)+" |","Resistance:"+Math.round(state.resistance)+" |","Orders:"+Math.round(state.order_inertia)+" |","Trend:"+state.price.trend);
+		}
+		
+		if(peak-price <= 0) return false;
+		if(state.price.trend > 0) return false;
+		if(state.resistance > 0) return false;
+		if(state.order_inertia > 0) return false;
 
-}
-function sell(trade){
+		/*
+		if(state.price.average > minmarket*-1) return false;
+		//if(state.rate.frenzy < state.price.average*-1) return false;
+		if(state.rate.frenzy < minfrenzy) return false;
+		*/
+		
+	}else{
+		if(trade.price > state.price.target){
+			reset();
+			return false;			
+		}
+		
+		if(peak-price < 0){
+			console.log(tools.timestamp(trade.timestamp)+" |","Price:"+Math.round(trade.price)+" |","Rise:"+Math.round(peak-price)+" |","Average:"+state.price.average.toPrecision(4)+" |","Resistance:"+Math.round(state.resistance)+" |","Orders:"+Math.round(state.order_inertia)+" |","Trend:"+state.price.trend);
+		}
+		
+		if(peak-price >= 0) return false;
+		if(state.price.trend < 0) return false;
+		if(state.resistance > 0) return false;
+		if(state.order_inertia < 0) return false;
 
-	const profitable = checkProfit('sell',trade);
-	if(!profitable) return;
-	first_trade = true;
-	console.log('SELL');
-	console.log(trade.price);
-	console.log(trade)
-
-	last_price = trade.price;
-	fiat = trade.price * coin;
-	fiat = fiat - Calc.fee(fiat);
-	coin = 0;
-	console.log('$'+fiat,'BTC:'+coin);
-	const item = {
-		timestamp:trade.timestamp*1000,
-		price:trade.price,
-		volume:trade.amount,
-		target:Calc.bid(trade.price)
+		//if(state.price.average < minmarket) return false;
+		//if(state.resistance < 0) return false;
+		//if(state.rate.frenzy > minfrenzy*-1) return false;
+		//if(state.rate.frenzy < frenzy) return false;
 	}
-	if(!state.loading) io.emit('sell',item);
-	File.write('sell',item);
-	state.trade_dir = "buy";
-}
-function addOrder(data){
-	Calc.order(data);
+	state.first_trade = true;	
+	state.last_price = trade.price;
+	state.price.target = tools.bid(state.last_price);
+	const item = Calc.wallet(trade);
+	//tools.resetWarp();
+	state.trade_dir = state.trade_dir === "sell"?"buy":"sell";	
+	if(!state.loading) web.emit('buysell',item);
+	File.write('buysell',item);
+	reset();
 }
 
+//let busy = false;
+let triggered = false;
+
+const buffer = [];
 function addTrade(trade){
+	//if(stop) return;
+	if(!start_time) start_time = trade.timestamp;
+	if(start_time < trade.timestamp - tools.time(vars.smooth)) state.ready = true;
+	state.price.active = trade.price;
+	Calc.startprice(trade);
+	Calc.rate(trade);
+	state.prev_inertia = state.trade_inertia;
+	state.price.prev_momentum = state.price.momentum;
+	state.price.prev_average = state.price.average;
+	state.prev_trade = trade;
 
-	active_price = trade.price;
-
-	Calc.inertia(trade);
-
-	if(!first_trade){
-		startup_price.push(trade.price);
-		last_price = startup_price.reduce((a, b) => a + b,0)/startup_price.length;
-		console.log("startup price:"+last_price)
+	
+	const items = Calc.getItems(trade);
+	if(!state.ready) items.trade.noready = true;
+	if(!state.loading) web.emit('trade',items.trade);
+	if(triggered){
+		File.write('trade',items.trade);
+		doTrade(trade);
+		return;
 	}
-
-	if((prev_inertia > 0 && state.trade_inertia < 0)||(prev_inertia < 0 && state.trade_inertia > 0)){
-		console.log('-------------------SWING----------------------------');
+	if(state.ready){
+		let proceed = Calc.checkProfit(trade)						
+		File.write('trade',items.trade,proceed);
+		if(proceed){
+			console.log('_________________TRIGGER_____________________________')
+			triggered = true;
+			doTrade(trade);
+		}
+	}else{
+		File.write('trade',items.trade);
 	}
-	prev_inertia = state.trade_inertia;
-
-	console.log(trade.price+' : '+state.trade_inertia);
-	let item = {
-		timestamp:trade.timestamp*1000,
-		price:trade.price,
-		inertia:state.trade_inertia
-	}
-	if(!state.loading) io.emit('trade',item);
-	File.write('trade',item);
-	item = {
-		timestamp:trade.timestamp*1000,
-		volume:state.order_inertia.vol,
-		price:state.order_inertia.price,
-		weight:state.order_inertia.weight
-	}
-	if(!state.loading) io.emit('orders',item);
-	File.write('orders',item);
-
-	if(state.trade_dir === 'sell' && state.trade_inertia > peak_inertia) peak_inertia = state.trade_inertia;
-	if(state.trade_dir === 'buy' && state.trade_inertia < peak_inertia) peak_inertia = state.trade_inertia;
-	if((state.trade_dir === 'sell' && state.trade_inertia > 0)||(state.trade_dir === 'buy' && state.trade_inertia < 0)) doTrade(trade);
 }
 
 History.get(null,addTrade).then(()=>{
-	Buffer.forEach((item)=>{
-		item._T === 'trades'?addTrade(item):addOrder(item);
+	Buffer = Buffer.filter((item)=>{
+		item._T === 'trades'?addTrade(item):Calc.order(item);
+		return false;
 	})
-	io.emit('all',io.getData());
+	web.getData().then((data)=>{
+		web.emit('all',data);
+	})	
 	state.loading = false;
-	console.log('_____________Done restoring data__________________')
+	console.log('_____________Done restoring data__________________');
 });
 
 

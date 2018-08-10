@@ -1,6 +1,7 @@
 "use strict";
 
-global.state = {};
+const G = require('../lib/globals.js');
+Object.keys(G.globals).forEach((k)=>{global[k] = G.globals[k]});
 
 const path = require('path');
 const fs = require('fs');
@@ -21,7 +22,7 @@ function start(ts){
     datafile = path.join(__dirname,'data/record'+timestamp(ts));
     let datadir = path.join(__dirname,'data');
     if(!fs.existsSync(datadir)) fs.mkdirSync(datadir);
-    if(fs.existsSync(datafile)) return;
+    if(fs.existsSync(datafile) && logger) return;
     if(logger) logger.close();    
     logger = fs.createWriteStream(datafile,{
         flags:'a',
@@ -34,25 +35,34 @@ const tradesChannel = pusher.subscribe('live_trades');
 const orderBookChannel = pusher.subscribe('order_book');
 
 orderBookChannel.bind('data',(data)=>{
-    Calc.order(data);
+    try{
+        Calc.order(data);
+    }
+    catch(e){
+        console.log(e);
+    }
 })
 tradesChannel.bind('trade',(trade)=>{
-    
-    data = {
-        t:{
-			amount:trade.amount,
-			timestamp:trade.timestamp,
-			price:trade.price,
-			type:trade.type
-		},
-        b:state.order_bids,
-        a:state.order_asks
+    try{
+        const data = {
+            t:{
+                amount:trade.amount,
+                timestamp:trade.timestamp,
+                price:trade.price,
+                type:trade.type
+            },
+            b:state.order_bids,
+            a:state.order_asks
+        }
+        write(data);
     }
-    write(data);
+    catch(e){
+        console.log(e);
+    }
+
 })
 function write(data){
     start(data.t.timestamp);
-    console.log(data);
     data = LZString.compress(JSON.stringify(data));
     logger.write(data+'\n');
 }
