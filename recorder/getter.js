@@ -2,97 +2,116 @@
 
 const fs = require('fs');
 const path = require('path');
+global.__rootdir = path.join(__dirname,'../');
+if(!global.state){
+	const G = require(path.join(__rootdir,'lib/globals.js'));
+	Object.keys(G.globals).forEach((k)=>{global[k] = G.globals[k]});
+}
+
 const LZString = require('lz-string');
-const Calc = require(path.join(__dirname,'../lib/calc.js'));
+const predict = require(path.join(__rootdir,'lib/predict.js'));
+const calc = require(path.join(__rootdir,'lib/calc.js'));
+const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
+const range = [20180731,tools.timestamp(Date.now()/1000,true)];
+
+
 
 const Data = [];
-let addOrder;
-let addTrade;
-
-exports.get = function(Order,Trade){
-	addOrder = Order;
-	addTrade = Trade;
-	return new Promise((resolve,reject)=>{
-		const dir = path.join(__dirname,'data');
-		const files = fs.readdirSync(dir).filter((file)=>{
-			if(!file.startsWith('record')) return false;
-			return true
-		})
-		read(dir,files,resolve)
+const get = function(){
+	const dir = path.join(__dirname,'data');
+	const files = fs.readdirSync(dir).filter((file)=>{
+		if(!file.startsWith('record')) return false;
+		const date = parseFloat(file.replace('record',''))
+		if(date < range[0]||date > range[1]) return false;
+		return true
 	})
+	read(dir,files)
 }
-function read(dir,files,resolve){
+
+function read(dir,files){
 	let file = files.shift();
+	console.log(file);
 	let inData = fs.readFileSync(path.join(dir,file),{
 		encoding:'ucs2'
 	}).split('\n');
-	new convert(inData).then(()=>{
-		if(!files.length){
-			resolve(true);
+	convert(inData).then(()=>{		
+		if(files.length){
+			read(dir,files); 
 		}else{
-			read(dir,files,resolve);
+			transfer(calc.getBuffer());
 		}
 	});
+	inData = null;
 }
+
+function transfer(data){
+	let item = data.shift();
+	try{
+		item = JSON.stringify(item);
+	}
+	catch(e){
+		if(data.length){
+			transfer(data);			
+		}else{
+			console.log('alldone\n'+JSON.stringify(state));
+		}
+		return;
+	}
+	
+	if(data.length){
+		console.log('rates\n'+item);
+		transfer(data);			
+	}else{
+		console.log('alldone\n'+JSON.stringify(state));
+	}	
+}
+
 function convert(inData){
-	this.inData = inData;
-	this.Data = [];
-	this.go = function(){
-		let item = this.inData.shift();
+	inData = inData.map((item)=>{
 		try{
 			item = LZString.decompress(item);
-			if(typeof(item)!=='string'){
-				this.again();
-				return;
+			if(typeof(item)==='string'){
+				try {
+					item = JSON.parse(item);
+					return item;
+				}
+				catch(e){};
 			};
 		}
-		catch(e){
-			this.again();
-			return;
-		}
-		try {
-			item = JSON.parse(item);
-		}
-		catch(e){
-			this.again();
-			return;
-		}
-
-		this.Data.push(item);
-		if(this.Data.length >= 1000){
-			commit(this.Data);
-			this.Data = [];
-			setTimeout(()=>{		
-				this.again();
-			})
-		}else{
-			this.again();
-		}
-	}
-	this.again = function(){
-		if(!this.inData.length){
-			commit(this.Data);
-			this.resolve(true);
-			return;
-		}
-		this.go();
-	}
+		catch(e){}
+		return false;
+	}).filter((item)=>{
+		return item?true:false;
+	})
 	return new Promise((resolve,reject)=>{
-		this.resolve = resolve;
-		this.go();
+		commit(inData,resolve);
+		inData = null;
 	})	
 }
 
-function commit(data){	
-	data.forEach((item)=>{
-		//console.log(item);
-		//state.order_bids = item.b;
-		//state.order_asks = item.a;
-		Calc.order({
-			timestamp:item.t.timestamp,
-			bids:item.b,
-			asks:item.a
-		},true);
-		addTrade(item.t);
-	})
+let count = 0;
+function commit(data,resolve){
+	count++;
+	let item = data.shift();
+	calc.order({
+		timestamp:item.t.timestamp,
+		bids:item.b,
+		asks:item.a
+	},true);
+	predict.addTrade(item.t);
+	if(data.length){
+		if(count > 5000){
+			count = 0;
+			setTimeout(()=>{
+				commit(data,resolve);
+			})			
+		}else{
+			commit(data,resolve);
+		}
+	}else{
+		data = null;
+		resolve(true);
+	}
 }
+
+get();

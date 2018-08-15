@@ -8,18 +8,13 @@ const fs = require('fs');
 const Pusher = require("pusher-js");
 const LZString = require('lz-string');
 const Calc = require('../lib/calc.js');
+const tools = require('../lib/tools/calctools.js');
 
 let datafile;
 let logger;
 
-function timestamp(ts){
-    const date = new Date(ts*1000)
-    let M = date.getMonth()+1;
-    M = M<10?'0'+M:M.toString();
-    return date.getFullYear()+M+date.getDate();
-}
 function start(ts){
-    datafile = path.join(__dirname,'data/record'+timestamp(ts));
+    datafile = path.join(__dirname,'data/record'+tools.timestamp(ts,true));
     let datadir = path.join(__dirname,'data');
     if(!fs.existsSync(datadir)) fs.mkdirSync(datadir);
     if(fs.existsSync(datafile) && logger) return;

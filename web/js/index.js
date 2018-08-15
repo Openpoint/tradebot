@@ -14,35 +14,45 @@ const Make = {
 	trade:function(data,bulk){
 		if(!Array.isArray(data)) data = [data];
 		data.forEach((item)=>{
-			let time = new Date(item.timestamp);
+			//if(item.noready) return;
+			let time = new Date(item.timestamp*1000);
+			
 			Time.trade.push(time);
-			plots.trade.y.push(item.price);
-			plots.trend.y.push(item.trend);
-			plots.average.y.push(item.average);
-			plots.momentum.y.push(item.momentum);
-			plots.resistance.y.push(item.resistance);
-			plots.speed.y.push(item.speed.sell);
-			plots.speed2.y.push(item.speed.buy);
-			plots.speed3.y.push(item.speed.frenzy);
-			plots.inertia.y.push(item.inertia);
-			plots.orderv.y.push(item.orders);
+			plots.price.trade.y.push(item.price);
+			plots.price.average.y.push(item.average);
+			plots.price.target.y.push(item.target);
+
+			
+			plots.speed.sellspeed.y.push(item.speed.sell);
+			plots.speed.buyspeed.y.push(item.speed.buy);
+			plots.speed.frenzy.y.push(item.speed.frenzy);
+			
+			
+			plots.market.resistance.y.push(item.resistance);
+			plots.market.inertia.y.push(item.inertia);
+
+			//plots.sentiment.momentum.y.push(item.momentum);
+			plots.sentiment.bull_bear.y.push(item.bull_bear);
+			plots.sentiment.trend.y.push(item.trend);
+			//plots.sentiment.orders.y.push(item.orders);
 		})
 		if(bulk) return;
 		Plotly.react(chart,layers,layout);
 	},
 	buysell:function(data,bulk){
 		if(!Array.isArray(data)) data = [data];
-		console.log(data);
 		data.forEach((item)=>{
-			let time = new Date(item.timestamp);
+			let time = new Date(item.timestamp*1000);
 			Time[item.dir].push(time);
+			Time.buysell.push(time);
 
-			plots.target.x.push(time);
-			plots.target.y.push(item.target);	
-			plots[item.dir].y.push(item.price);
-			plots[item.dir+2].y.push(item.inertia);
-			plots[item.dir+3].y.push(item.frenzy);
+			//plots.price.target.y.push(item.target);	
+			plots.price[item.dir].y.push(item.price);
+			plots.market[item.dir].y.push(item.inertia);
+			plots.speed[item.dir].y.push(item.frenzy);
+			plots.sentiment[item.dir].y.push(item.bull_bear);
 		})
+		console.log(plots.sentiment)
 		if(bulk) return;
 		Plotly.react(chart,layers,layout);
 	}
@@ -68,6 +78,9 @@ Object.keys(Make).forEach((key)=>{
 
 
 
-const layers = Object.keys(plots).map((key)=>{
-	return plots[key];
+const layers = [];
+Object.keys(plots).forEach((key)=>{
+	Object.keys(plots[key]).forEach((key2)=>{
+		layers.push(plots[key][key2]);
+	});
 });
