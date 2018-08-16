@@ -14,6 +14,7 @@ const calc = require('./lib/calc.js');
 
 let Buffer = [];
 
+
 Bitstamp.channels.trades.bind('trade', function (data) {
 	if(state.loading){
 		data._T = 'trades';

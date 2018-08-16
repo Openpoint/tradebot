@@ -12,7 +12,7 @@ const LZString = require('lz-string');
 const predict = require(path.join(__rootdir,'lib/predict.js'));
 const calc = require(path.join(__rootdir,'lib/calc.js'));
 const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
-const range = [20180731,tools.timestamp(Date.now()/1000,true)];
+const range = [20180807,tools.timestamp(Date.now()/1000,true)];
 
 
 
@@ -100,7 +100,8 @@ function commit(data,resolve){
 	},true);
 	predict.addTrade(item.t);
 	if(data.length){
-		if(count > 5000){
+
+		if(count > 200){
 			count = 0;
 			setTimeout(()=>{
 				commit(data,resolve);
@@ -108,6 +109,7 @@ function commit(data,resolve){
 		}else{
 			commit(data,resolve);
 		}
+		
 	}else{
 		data = null;
 		resolve(true);

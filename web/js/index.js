@@ -27,13 +27,10 @@ const Make = {
 			plots.speed.buyspeed.y.push(item.speed.buy);
 			plots.speed.frenzy.y.push(item.speed.frenzy);
 			
-			
-			plots.market.resistance.y.push(item.resistance);
 			plots.market.inertia.y.push(item.inertia);
 
 			//plots.sentiment.momentum.y.push(item.momentum);
 			plots.sentiment.bull_bear.y.push(item.bull_bear);
-			plots.sentiment.trend.y.push(item.trend);
 			//plots.sentiment.orders.y.push(item.orders);
 		})
 		if(bulk) return;

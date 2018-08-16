@@ -190,30 +190,6 @@ export const plots = {
 				shape:"line",
 			}
 		},
-		momentum:{
-			x:Time.trade,
-			y:[],
-			legendgroup: 'c',
-			name:'momentum',
-			yaxis:'y3',
-			line:{
-				width:.5,
-				color:'red'
-			},
-			hoverinfo:"y+name"        
-		},
-		trend:{
-			x:Time.trade,
-			y:[],
-			legendgroup: 'c',
-			name:'Price trend',
-			yaxis:'y3',
-			hoverinfo:"y+name",
-			line:{
-				width:.5,
-				color:'dodgerblue'
-			}       
-		},
 		orders:{
 			x:Time.trade,
 			y:[],
@@ -278,21 +254,6 @@ export const plots = {
 				color:'red'
 			},
 			hoverinfo:"y+name"        
-		},
-		
-		resistance:{
-			x:Time.trade,
-			y:[],
-			legendgroup: 'd',
-			name:'Buy/Sell resistance point',
-			yaxis:'y4',
-			hoverinfo:"y+name",
-			line:{
-				dash:'dot',
-				shape:'hv',
-				width:0.5,
-				color:'black'
-			},
 		},
 	
 		buy:{
