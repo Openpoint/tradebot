@@ -255,7 +255,19 @@ export const plots = {
 			},
 			hoverinfo:"y+name"        
 		},
-	
+		adjusted:{
+			x:Time.trade,
+			y:[],
+			legendgroup: 'd',
+			name:'adjusted',
+			yaxis:'y4',
+			line:{
+				dash:'dot',
+				width:0.5,
+				color:'black'
+			},
+			hoverinfo:"y+name"        
+		},	
 		buy:{
 			x:Time.buy,
 			y:[],

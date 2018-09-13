@@ -12,7 +12,7 @@ const LZString = require('lz-string');
 const predict = require(path.join(__rootdir,'lib/predict.js'));
 const calc = require(path.join(__rootdir,'lib/calc.js'));
 const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
-const range = [20180701,tools.timestamp(Date.now()/1000,true)];
+const range = [20180730,tools.timestamp(Date.now()/1000,true)];
 
 
 

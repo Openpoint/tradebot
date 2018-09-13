@@ -28,6 +28,7 @@ const Make = {
 			plots.speed.frenzy.y.push(item.speed.frenzy);
 			
 			plots.market.inertia.y.push(item.inertia);
+			plots.market.adjusted.y.push(item.bull_bear);
 
 			//plots.sentiment.momentum.y.push(item.momentum);
 			plots.sentiment.bull_bear.y.push(item.bull_bear);
