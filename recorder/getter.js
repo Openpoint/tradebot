@@ -12,11 +12,8 @@ const LZString = require('lz-string');
 const predict = require(path.join(__rootdir,'lib/predict.js'));
 const calc = require(path.join(__rootdir,'lib/calc.js'));
 const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
-const range = [20180730,tools.timestamp(Date.now()/1000,true)];
+const range = [20180704,tools.timestamp(Date.now()/1000,true)];
 
-
-
-const Data = [];
 const get = function(){
 	const dir = path.join(__dirname,'data');
 	const files = fs.readdirSync(dir).filter((file)=>{
@@ -30,7 +27,7 @@ const get = function(){
 
 function read(dir,files){
 	let file = files.shift();
-	console.log(file);
+	//console.log(file);
 	let inData = fs.readFileSync(path.join(dir,file),{
 		encoding:'ucs2'
 	}).split('\n');
@@ -53,7 +50,7 @@ function transfer(data){
 		if(data.length){
 			transfer(data);			
 		}else{
-			console.log('alldone\n'+JSON.stringify(state));
+			console.log('alldone\n'+JSON.stringify(state)+'\n'+JSON.stringify(wallet));
 		}
 		return;
 	}
@@ -62,7 +59,7 @@ function transfer(data){
 		console.log('rates\n'+item);
 		transfer(data);			
 	}else{
-		console.log('alldone\n'+JSON.stringify(state));
+		console.log('alldone\n'+JSON.stringify(state)+'\n'+JSON.stringify(wallet));
 	}	
 }
 
@@ -100,7 +97,6 @@ function commit(data,resolve){
 	},true);
 	predict.addTrade(item.t);
 	if(data.length){
-
 		if(count > 200){
 			count = 0;
 			setTimeout(()=>{

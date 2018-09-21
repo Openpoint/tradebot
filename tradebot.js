@@ -44,12 +44,23 @@ getter.stdout.on('data', (data) => {
 	data = data.toString();
 	if(data.startsWith('rates')){
 		data = data.split('\n');
-		rates.push(JSON.parse(data[1]));
+		try{
+			rates.push(JSON.parse(data[1]));
+		}
+		catch(e){
+			console.log('Error parsing a rate',e);
+		}
 		return;
 	}
 	if(data.startsWith('alldone')){
-		data = data.split('\n');		
-		state = JSON.parse(data[1]);
+		data = data.split('\n');
+		try{
+			state = JSON.parse(data[1]);
+			wallet = JSON.parse(data[2]);
+		}		
+		catch(e){
+			console.log('ERROR',e);
+		}
 		calc.setBuffer(rates);
 		rates = null;
 		for (var i = 0, len = Buffer.length; i < len; i++) {
@@ -57,9 +68,11 @@ getter.stdout.on('data', (data) => {
 			item._T === 'trades'?predict.addTrade(item):Calc.order(item);
 		}
 		Buffer = null;
+		/*
 		web.getData().then((data2)=>{
 			web.emit('all',data2);
 		})
+		*/
 		state.loading = false;
 		console.log('_______________FINISHED RESTORATION_________________________________')
 		return;

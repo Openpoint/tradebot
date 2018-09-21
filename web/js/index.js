@@ -1,5 +1,6 @@
 "use strict"
-
+const daterange = {start:'20180821',end:'20180930'};
+//const daterange = {start:'20180718',end:'20180818'};
 const chart = document.getElementById('chart');
 const socket = io();
 let ready = false;
@@ -14,7 +15,7 @@ const Make = {
 	trade:function(data,bulk){
 		if(!Array.isArray(data)) data = [data];
 		data.forEach((item)=>{
-			//if(item.noready) return;
+			if(!item.peaks) item.peaks = {};
 			let time = new Date(item.timestamp*1000);
 			
 			Time.trade.push(time);
@@ -26,13 +27,20 @@ const Make = {
 			plots.speed.sellspeed.y.push(item.speed.sell);
 			plots.speed.buyspeed.y.push(item.speed.buy);
 			plots.speed.frenzy.y.push(item.speed.frenzy);
+			plots.speed.peak.y.push(item.peaks.frenzy);
 			
 			plots.market.inertia.y.push(item.inertia);
+			plots.market.peak.y.push(item.peaks.inertia);
 			plots.market.adjusted.y.push(item.bull_bear);
 
 			//plots.sentiment.momentum.y.push(item.momentum);
 			plots.sentiment.bull_bear.y.push(item.bull_bear);
+			plots.sentiment.peak.y.push(item.peaks.bull_bear);
 			//plots.sentiment.orders.y.push(item.orders);
+
+			plots.orders.weight.y.push(item.orders);
+			plots.orders.peak.y.push(item.peaks.orders);
+			plots.orders.peaked.y.push(item.peaked);
 		})
 		if(bulk) return;
 		Plotly.react(chart,layers,layout);
@@ -49,13 +57,17 @@ const Make = {
 			plots.market[item.dir].y.push(item.inertia);
 			plots.speed[item.dir].y.push(item.frenzy);
 			plots.sentiment[item.dir].y.push(item.bull_bear);
+			plots.orders[item.dir].y.push(item.orders);
 		})
-		console.log(plots.sentiment)
 		if(bulk) return;
 		Plotly.react(chart,layers,layout);
 	}
 	
 }
+socket.on('connect',()=>{
+	console.warn('connected');
+	socket.emit('data',daterange)
+})
 socket.on('all',(data)=>{
 	if(ready) return;
 	ready = true;
