@@ -1,17 +1,26 @@
 "use strict";
 
-const G = require('../lib/globals.js');
-Object.keys(G.globals).forEach((k)=>{global[k] = G.globals[k]});
-
 const path = require('path');
 const fs = require('fs');
-const Pusher = require("pusher-js");
 const LZString = require('lz-string');
-const Calc = require('../lib/calc.js');
 const tools = require('../lib/tools/calctools.js');
 
 let datafile;
 let logger;
+
+exports.input = function(trade){
+    const data = {
+        t:{
+            amount:trade.amount,
+            timestamp:trade.timestamp,
+            price:trade.price,
+            type:trade.type
+        },
+        b:state.order_bids,
+        a:state.order_asks
+    }
+    write(data);
+}
 
 function start(ts){
     datafile = path.join(__dirname,'data/record'+tools.timestamp(ts,true));
@@ -25,39 +34,13 @@ function start(ts){
     });
 }
 
-const pusher = new Pusher("de504dc5763aeef9ff52");
-const tradesChannel = pusher.subscribe('live_trades');
-const orderBookChannel = pusher.subscribe('order_book');
-
-orderBookChannel.bind('data',(data)=>{
-    try{
-        Calc.order(data);
-    }
-    catch(e){
-        console.log(e);
-    }
-})
-tradesChannel.bind('trade',(trade)=>{
-    try{
-        const data = {
-            t:{
-                amount:trade.amount,
-                timestamp:trade.timestamp,
-                price:trade.price,
-                type:trade.type
-            },
-            b:state.order_bids,
-            a:state.order_asks
-        }
-        write(data);
-    }
-    catch(e){
-        console.log(e);
-    }
-
-})
 function write(data){
-    start(data.t.timestamp);
+   try{
     data = LZString.compress(JSON.stringify(data));
+    start(data.t.timestamp);
     logger.write(data+'\n');
+   } 
+   catch(err){
+       console.log(err);
+   }
 }

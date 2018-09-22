@@ -6,7 +6,24 @@
             "api_secret":""
         }
     },
-    "port":9080,
+    "port":80,
     "datafile":"tradedata.txt",
-    "recorder":false
+    "sauce":{
+        "glutlimit":{
+            "inertia":[0,0],
+            "bull_bear":[0,0],
+            "orders":[0,0],
+            "frenzy":[0,0],
+            "incline":[0,0]
+        },
+        "limits":{
+            "profitable":[0,0],
+            "bull_bear":[0,0],	
+            "inertia":[0,0],
+            "frenzy":[0,0],
+            "orders":[0,0],
+            "incline":[0,0]
+        },
+        "smoothing":0
+    }
 }

@@ -2,19 +2,15 @@
 
 const fs = require('fs');
 const path = require('path');
-global.__rootdir = path.join(__dirname,'../');
-if(!global.state){
-	const G = require(path.join(__rootdir,'lib/globals.js'));
-	Object.keys(G.globals).forEach((k)=>{global[k] = G.globals[k]});
-}
-
 const LZString = require('lz-string');
 const predict = require(path.join(__rootdir,'lib/predict.js'));
-const calc = require(path.join(__rootdir,'lib/calc.js'));
+const Calc = require(path.join(__rootdir,'lib/calc.js'));
 const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
 const range = [20180704,tools.timestamp(Date.now()/1000,true)];
+let Buffer;
 
-const get = function(){
+module.exports.get = function(buffer){
+	Buffer = buffer;
 	const dir = path.join(__dirname,'data');
 	const files = fs.readdirSync(dir).filter((file)=>{
 		if(!file.startsWith('record')) return false;
@@ -27,7 +23,6 @@ const get = function(){
 
 function read(dir,files){
 	let file = files.shift();
-	//console.log(file);
 	let inData = fs.readFileSync(path.join(dir,file),{
 		encoding:'ucs2'
 	}).split('\n');
@@ -35,32 +30,16 @@ function read(dir,files){
 		if(files.length){
 			read(dir,files); 
 		}else{
-			transfer(calc.getBuffer());
+			state.loading = false;
+			for (var i = 0, len = Buffer.length; i < len; i++) {
+				let item = Buffer[i];
+				item._T === 'trades'?predict.addTrade(item):Calc.order(item);
+			}
+			Buffer = null;
+			console.log('_______________FINISHED RESTORATION_________________________________')
 		}
 	});
 	inData = null;
-}
-
-function transfer(data){
-	let item = data.shift();
-	try{
-		item = JSON.stringify(item);
-	}
-	catch(e){
-		if(data.length){
-			transfer(data);			
-		}else{
-			console.log('alldone\n'+JSON.stringify(state)+'\n'+JSON.stringify(wallet));
-		}
-		return;
-	}
-	
-	if(data.length){
-		console.log('rates\n'+item);
-		transfer(data);			
-	}else{
-		console.log('alldone\n'+JSON.stringify(state)+'\n'+JSON.stringify(wallet));
-	}	
 }
 
 function convert(inData){
@@ -90,7 +69,7 @@ let count = 0;
 function commit(data,resolve){
 	count++;
 	let item = data.shift();
-	calc.order({
+	Calc.order({
 		timestamp:item.t.timestamp,
 		bids:item.b,
 		asks:item.a
@@ -112,4 +91,3 @@ function commit(data,resolve){
 	}
 }
 
-get();

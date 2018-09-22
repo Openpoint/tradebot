@@ -1,6 +1,6 @@
 "use strict"
-const daterange = {start:'20180821',end:'20180930'};
-//const daterange = {start:'20180718',end:'20180818'};
+//const daterange = {start:'20180821',end:'20180930'};
+const daterange = {start:'20180718',end:'20180818'};
 const chart = document.getElementById('chart');
 const socket = io();
 let ready = false;
@@ -24,10 +24,12 @@ const Make = {
 			plots.price.target.y.push(item.target);
 
 			
-			plots.speed.sellspeed.y.push(item.speed.sell);
-			plots.speed.buyspeed.y.push(item.speed.buy);
+			//plots.speed.sellspeed.y.push(item.speed.sell);
+			//plots.speed.buyspeed.y.push(item.speed.buy);
+			plots.speed.incline.y.push(item.speed.incline);
 			plots.speed.frenzy.y.push(item.speed.frenzy);
 			plots.speed.peak.y.push(item.peaks.frenzy);
+			plots.speed.peaki.y.push(item.peaks.incline);
 			
 			plots.market.inertia.y.push(item.inertia);
 			plots.market.peak.y.push(item.peaks.inertia);

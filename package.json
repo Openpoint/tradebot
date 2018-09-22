@@ -1,5 +1,5 @@
 {
-  "name": "bitstamp",
+  "name": "tradebot",
   "version": "1.0.0",
   "description": "trading bot",
   "main": "index.js",

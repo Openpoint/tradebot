@@ -23,7 +23,8 @@ export const layout = {
 	yaxis5:{
 		domain:[0.8,1],
 	},
-	datarevision:0
+	datarevision:0,
+
 }
 export const plots = {
 	price:{
@@ -34,6 +35,7 @@ export const plots = {
 			name:'Price',
 			yaxis:'y',
 			hoverinfo:"y+name",
+			mode: 'lines',
 			line:{
 				color:'black',
 				width:2,
@@ -46,6 +48,7 @@ export const plots = {
 			name:'Price average',
 			yaxis:'y',
 			hoverinfo:"y+name",
+			mode: 'lines',
 			line:{
 				width:.5,
 				color:'dodgerblue'
@@ -59,6 +62,7 @@ export const plots = {
 			name:'Profit line',
 			yaxis:'y',
 			hoverinfo:"y+name",
+			mode: 'lines',
 			line:{
 				dash:'dot',
 				shape:'hv',
@@ -74,14 +78,12 @@ export const plots = {
 			name:'Buy',
 			yaxis:'y',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'lime'
-			},
-			line:{
-				width:0
 			}
 		},
 		sell:{
@@ -91,18 +93,17 @@ export const plots = {
 			name:'Sell',
 			yaxis:'y',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'red'
-			},
-			line:{
-				width:0
 			}
 		},
 	},
 	speed:{
+		/*
 		sellspeed:{
 			x:Time.trade,
 			y:[],
@@ -129,15 +130,31 @@ export const plots = {
 			},
 			hoverinfo:"y+name" 		
 		},
+		*/
 		frenzy:{
 			x:Time.trade,
 			y:[],
 			legendgroup: 'b',
 			name:'Frenzy',
 			yaxis:'y2',
+			mode: 'lines',
 			line:{
 				width:1,
 				color:'black'
+			},
+			hoverinfo:"y+name" 		
+		},
+		incline:{
+			x:Time.trade,
+			y:[],
+			legendgroup: 'b',
+			name:'Incline',
+			yaxis:'y2',
+			mode: 'lines',
+			line:{
+				width:.5,
+				opacity:.1,
+				color:'red'
 			},
 			hoverinfo:"y+name" 		
 		},
@@ -147,11 +164,27 @@ export const plots = {
 			legendgroup: 'b',
 			name:'Peak',
 			yaxis:'y2',
+			mode: 'lines',
 			line:{
 				shape:'hv',
 				dash:"dot",
 				width:1,
 				color:'black'
+			},
+			hoverinfo:"y+name" 		
+		},
+		peaki:{
+			x:Time.trade,
+			y:[],
+			legendgroup: 'b',
+			name:'Peak Incline',
+			yaxis:'y2',
+			mode: 'lines',
+			line:{
+				shape:'hv',
+				dash:"dot",
+				width:1,
+				color:'red'
 			},
 			hoverinfo:"y+name" 		
 		},
@@ -163,14 +196,12 @@ export const plots = {
 			name:'Buy',
 			yaxis:'y2',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'lime'
-			},
-			line:{
-				width:0
 			}
 		},
 		sell:{
@@ -181,14 +212,12 @@ export const plots = {
 			name:'Sell',
 			yaxis:'y2',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'red'
-			},
-			line:{
-				width:0
 			}
 		},
 	},
@@ -200,6 +229,7 @@ export const plots = {
 			name:'Bull | Bear',
 			yaxis:'y3',
 			hoverinfo:"y+name",
+			mode: 'lines',
 			line:{
 				color:'lime',
 				width:1,
@@ -213,6 +243,7 @@ export const plots = {
 			name:'Peak',
 			yaxis:'y3',
 			hoverinfo:"y+name",
+			mode: 'lines',
 			line:{
 				dash:'dot',
 				shape:'hv',
@@ -228,6 +259,7 @@ export const plots = {
 			name:'Orders',
 			yaxis:'y3',
 			hoverinfo:"y+name",
+			mode: 'lines',
 			line:{
 				width:.5,
 				color:'gray'
@@ -241,14 +273,12 @@ export const plots = {
 			name:'Buy',
 			yaxis:'y3',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'lime'
-			},
-			line:{
-				width:0
 			}
 		},
 		sell:{
@@ -259,14 +289,12 @@ export const plots = {
 			name:'Sell',
 			yaxis:'y3',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'red'
-			},
-			line:{
-				width:0
 			}
 		},
 	},
@@ -277,6 +305,7 @@ export const plots = {
 			legendgroup: 'd',
 			name:'inertia',
 			yaxis:'y4',
+			mode: 'lines',
 			line:{
 				width:1,
 				color:'red'
@@ -289,6 +318,7 @@ export const plots = {
 			legendgroup: 'd',
 			name:'Peak',
 			yaxis:'y4',
+			mode: 'lines',
 			line:{
 				dash:'dot',
 				shape:'hv',
@@ -303,6 +333,7 @@ export const plots = {
 			legendgroup: 'd',
 			name:'adjusted',
 			yaxis:'y4',
+			mode: 'lines',
 			line:{
 				dash:'dot',
 				width:0.5,
@@ -318,14 +349,12 @@ export const plots = {
 			name:'Buy',
 			yaxis:'y4',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'lime'
-			},
-			line:{
-				width:0
 			}
 		},
 		sell:{
@@ -336,14 +365,12 @@ export const plots = {
 			name:'Sell',
 			yaxis:'y4',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'red'
-			},
-			line:{
-				width:0
 			}
 		}
 	},	
@@ -354,6 +381,7 @@ export const plots = {
 			legendgroup: 'e',
 			name:'Order weight',
 			yaxis:'y5',
+			mode: 'lines',
 			line:{
 				width:1,
 				color:'dodgerblue'
@@ -366,6 +394,7 @@ export const plots = {
 			legendgroup: 'e',
 			name:'Peak',
 			yaxis:'y5',
+			mode: 'lines',
 			line:{
 				shape:'hv',
 				dash:'dot',
@@ -380,6 +409,7 @@ export const plots = {
 			legendgroup: 'e',
 			name:'Peaked',
 			yaxis:'y5',
+			mode: 'lines',
 			line:{
 				shape:'hv',
 				dash:'dot',
@@ -396,14 +426,12 @@ export const plots = {
 			name:'Buy',
 			yaxis:'y5',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'lime'
-			},
-			line:{
-				width:0
 			}
 		},
 		sell:{
@@ -414,14 +442,12 @@ export const plots = {
 			name:'Sell',
 			yaxis:'y5',
 			hoverinfo:"y+name",
+			mode: 'markers',
 			marker:{
 				symbol:'circle',
 				size:12,
 				opacity:.8,
 				color:'red'
-			},
-			line:{
-				width:0
 			}
 		}
 	},
