@@ -6,19 +6,40 @@ const LZString = require('lz-string');
 const predict = require(path.join(__rootdir,'lib/predict.js'));
 const Calc = require(path.join(__rootdir,'lib/calc.js'));
 const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
-const range = [20180704,tools.timestamp(Date.now()/1000,true)];
+const dir = state.dev?
+    path.join(__rootdir,'recorder/data/'):
+	path.join(__rootdir,'recorder/data/buffer');
+	
+let range = Math.round(Date.now()/1000);
+
+if(state.dev){
+	range = [0,tools.timestamp(range,true)];
+}else{
+	range = [tools.timestamp(range-vars.smooth*60,true),tools.timestamp(range,true)];
+} 
 let Buffer;
 
-module.exports.get = function(buffer){
+module.exports.get = function(buffer,start){
+	if(!fs.existsSync(dir)){
+		state.loading = false;
+		return;
+	}
 	Buffer = buffer;
-	const dir = path.join(__dirname,'data');
+	if(state.dev){
+		if(start) range[0] = start;
+	}
 	const files = fs.readdirSync(dir).filter((file)=>{
 		if(!file.startsWith('record')) return false;
 		const date = parseFloat(file.replace('record',''))
+		if(!range[0]) range[0] = date;
 		if(date < range[0]||date > range[1]) return false;
 		return true
 	})
-	read(dir,files)
+	if(files.length){
+		read(dir,files)
+	}else{
+		state.loading = false;
+	}
 }
 
 function read(dir,files){
@@ -31,12 +52,14 @@ function read(dir,files){
 			read(dir,files); 
 		}else{
 			state.loading = false;
+			state.writeFile = true;
 			for (var i = 0, len = Buffer.length; i < len; i++) {
 				let item = Buffer[i];
 				item._T === 'trades'?predict.addTrade(item):Calc.order(item);
 			}
 			Buffer = null;
-			console.log('_______________FINISHED RESTORATION_________________________________')
+			Log.info('_______________FINISHED RESTORATION_________________________________')
+			Log.info(state);
 		}
 	});
 	inData = null;
@@ -57,7 +80,7 @@ function convert(inData){
 		catch(e){}
 		return false;
 	}).filter((item)=>{
-		return item?true:false;
+		return item && item.b && item.a?true:false;
 	})
 	return new Promise((resolve,reject)=>{
 		commit(inData,resolve);
@@ -69,6 +92,8 @@ let count = 0;
 function commit(data,resolve){
 	count++;
 	let item = data.shift();
+	item.b.dir = 'bids';
+	item.a.dir = 'asks';
 	Calc.order({
 		timestamp:item.t.timestamp,
 		bids:item.b,

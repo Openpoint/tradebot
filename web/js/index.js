@@ -1,6 +1,6 @@
 "use strict"
-//const daterange = {start:'20180821',end:'20180930'};
-const daterange = {start:'20180718',end:'20180818'};
+const daterange = {start:'20180821',end:'20180930'};
+//const daterange = {start:'20180718',end:'20180818'};
 const chart = document.getElementById('chart');
 const socket = io();
 let ready = false;
