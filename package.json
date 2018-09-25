@@ -9,9 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "echarts": "^4.2.0-rc.1",
     "express": "^4.16.3",
     "lz-string": "^1.4.4",
-    "plotly.js-dist": "^1.39.3",
     "pusher-js": "^4.2.2",
     "request": "^2.87.0",
     "socket.io": "^2.1.1",

@@ -40,20 +40,21 @@ Bitstamp.channels.orders.bind('data', function (data) {
 })
 if(state.record) return;
 state.loading = true;
-Calc.setwallet('btcusd',(err)=>{
+Calc.setwallet((err,data)=>{
 	if(err){
 		Log.error(err);
 		return;
 	}
 	if(!state.dev){
-		state.trade_dir = wallet.coin?'sell':'buy';
+		state.trade_dir = wallet.coin && wallet.fiat < 0.1?'sell':'buy';
 	}else{
 		wallet.coin = 1;
 		wallet.fiat = 0;
+		Log.info(wallet);
 	}
 	Log.info("Trading direction: "+state.trade_dir);
 	const getter = require('./recorder/getter.js');
-	getter.get(Buffer,"20180920");
+	getter.get(Buffer,"20180720");
 })
 
 

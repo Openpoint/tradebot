@@ -2,21 +2,27 @@
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <title>Bitstamp bot</title>
-  <meta name="description" content="Bitstamp bot">
-  <meta name="author" content="Michael Jonker">
-  <link rel="stylesheet" type="text/css" href="css/reset.css">
-  <link rel="stylesheet" type="text/css" href="css/index.css">
-  <script src="js/plotly-latest.min.js"></script>
-  <script language="javascript" src="node_modules/lz-string/libs/lz-string.min.js"></script>
+    <title>Bitstamp bot</title>
+    <meta name="description" content="Bitstamp bot">
+    <meta name="author" content="Michael Jonker">
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <script src="node_modules/echarts/dist/echarts-en.min.js"></script>
 </head>
 
 <body>
-	<div id="chart"></div>
-
-	<script src="/socket.io/socket.io.js"></script>
+    <div id = "window">
+        <div id="chart"></div>
+        <div id="panel">
+            <div id="controls">
+                <div class = 'control' id = 'prev'>prev</div>
+                <div class = 'control' id = 'next'>next</div>
+            </div>
+        </div>
+    </div>   
+    <script src="/socket.io/socket.io.js"></script>
     <script src="js/index.js" type="module"></script>
 </body>
 </html>

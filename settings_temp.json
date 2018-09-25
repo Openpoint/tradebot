@@ -4,7 +4,8 @@
             "user_id":"",
             "api_key":"",
             "api_secret":""
-        }
+        },
+        "pair":"btcusd"
     },
     "port":80,
     "datafile":"tradedata.txt",
