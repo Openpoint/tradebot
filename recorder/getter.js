@@ -5,22 +5,48 @@ const path = require('path');
 const LZString = require('lz-string');
 const predict = require(path.join(__rootdir,'lib/predict.js'));
 const Calc = require(path.join(__rootdir,'lib/calc.js'));
-const tools = require(path.join(__rootdir,'lib/tools/calctools.js'));
+const time = require(path.join(__rootdir,'lib/tools/time.js'))
+const long_average = sauce.long_average;
+const recording = path.join(__rootdir,'recorder/data/recording');
 const dir = state.dev?
-    path.join(__rootdir,'recorder/data/'):
-	path.join(__rootdir,'recorder/data/buffer');
-	
-let range = Math.round(Date.now()/1000);
+    path.join(__rootdir,'recorder/data/development'):
+	path.join(__rootdir,'recorder/data/production');
+
+let range = time.timestamp.seconds(Date.now());
 
 if(state.dev){
-	range = [0,tools.timestamp(range,true)];
+	range = [0,time.datestamp(range).file];
 }else{
-	range = [tools.timestamp(range-vars.smooth*60,true),tools.timestamp(range,true)];
+	range = [time.datestamp(range-long_average).file,time.datestamp(range).file];
 } 
 let Buffer;
+if(!fs.existsSync(dir)) fs.mkdirSync(dir);
+if(fs.existsSync(recording)){
+	let rs = fs.readdirSync(recording).map((f)=>{
+		let f2 = path.join(recording,f);
+		let f3 = path.join(dir,f);
+		let stats = fs.statSync(f2);
+		return {
+			file:f2,
+			file2:f3,
+			ts:stats.mtimeMs
+		}
+	});
+	rs.forEach((f)=>{
+		if(!fs.existsSync(f.file2)){
+			fs.copyFileSync(f.file,f.file2);
+		}else{
+			let t = fs.statSync(f.file2);
+			t=t.mtimeMs
+			if(t < f.ts){
+				fs.copyFileSync(f.file,f.file2);
+			}			
+		}
+	})
+}
 
 module.exports.get = function(buffer,start){
-	if(!fs.existsSync(dir)){
+	if(!fs.readdirSync(dir).length){
 		state.loading = false;
 		return;
 	}
@@ -43,6 +69,7 @@ module.exports.get = function(buffer,start){
 }
 
 function read(dir,files){
+	
 	let file = files.shift();
 	let inData = fs.readFileSync(path.join(dir,file),{
 		encoding:'ucs2'
@@ -59,7 +86,7 @@ function read(dir,files){
 			}
 			Buffer = null;
 			Log.info('_______________FINISHED RESTORATION_________________________________')
-			Log.info(state);
+			//Log.info(state);
 		}
 	});
 	inData = null;

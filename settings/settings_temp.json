@@ -1,0 +1,36 @@
+{
+    "markets":{
+        "bitstamp":{
+            "user_id":"",
+            "api_key":"",
+            "api_secret":""
+        },
+        "pair":"btcusd"
+    },
+    "port":80,
+    "datafile":"tradedata.txt",
+    "sauce":{
+        "glutlimits":{
+            "sentiment":[0,0],
+            "inertia":[0,0],
+            "speed":[0,0],
+            "orders":[0,0],          
+            "incline":[0,0]
+        },
+        "limits":{            
+            "sentiment":[0,0],	
+            "inertia":[0,0],
+            "speed":[0,0],
+            "orders":[0,0],
+            "incline":[0,0],
+            "profitable":[0,0]
+        },
+        "emergency":{
+            "cut":"0h",
+            "limit":0
+        },
+        "smoothing":"0s",
+        "long_average":"0h",
+        "short_average":"0m"
+    }
+}

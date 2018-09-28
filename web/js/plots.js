@@ -47,7 +47,7 @@ export function getOption(Data){
 			new series({name:'Buy',type:'scatter',data:Data.inertia.buy,color:'lime',index:2}),
 			new series({name:'Sell',type:'scatter',data:Data.inertia.sell,color:'red',index:2}),
 
-			new series({name:'Speed',type:'line',data:Data.speed.frenzy,color:'SeaGreen',fill:true,index:3}),
+			new series({name:'Speed',type:'line',data:Data.speed.speed,color:'SeaGreen',fill:true,index:3}),
 			new series({name:'Peak',type:'line',data:Data.speed.peak,color:'black',index:3,style:'dots',width:1,step:'middle'}),
 			new series({name:'Buy',type:'scatter',data:Data.speed.buy,color:'lime',index:3}),
 			new series({name:'Sell',type:'scatter',data:Data.speed.sell,color:'red',index:3}),
@@ -225,7 +225,7 @@ export function getData(){
 			peak:[]
 		},
 		speed:{
-			frenzy:[],
+			speed:[],
 			buy:[],
 			sell:[],
 			peak:[]

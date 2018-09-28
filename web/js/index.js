@@ -23,14 +23,14 @@ const Make = {
 			Data.price.average.push([trade.timestamp*1000,trade.average]);
 			Data.price.target.push([trade.timestamp*1000,trade.target]);
 
-			Data.sentiment.bullbear.push([trade.timestamp*1000,trade.bull_bear]);
-			Data.sentiment.peak.push([trade.timestamp*1000,trade.peaks.bull_bear]);
+			Data.sentiment.bullbear.push([trade.timestamp*1000,trade.sentiment]);
+			Data.sentiment.peak.push([trade.timestamp*1000,trade.peaks.sentiment]);
 
 			Data.inertia.inertia.push([trade.timestamp*1000,trade.inertia]);
 			Data.inertia.peak.push([trade.timestamp*1000,trade.peaks.inertia]);
 
-			Data.speed.frenzy.push([trade.timestamp*1000,trade.speed.frenzy]);
-			Data.speed.peak.push([trade.timestamp*1000,trade.peaks.frenzy]);
+			Data.speed.speed.push([trade.timestamp*1000,trade.speed.speed]);
+			Data.speed.peak.push([trade.timestamp*1000,trade.peaks.speed]);
 
 			Data.orders.orders.push([trade.timestamp*1000,trade.orders]);
 			Data.orders.peak.push([trade.timestamp*1000,trade.peaks.orders]);
@@ -48,9 +48,9 @@ const Make = {
 	buysell:function(data,bulk){		
 		data.forEach((trade)=>{
 			Data.price[trade.dir].push([trade.timestamp*1000,trade.price]);
-			Data.sentiment[trade.dir].push([trade.timestamp*1000,trade.bull_bear]);
+			Data.sentiment[trade.dir].push([trade.timestamp*1000,trade.sentiment]);
 			Data.inertia[trade.dir].push([trade.timestamp*1000,trade.inertia]);
-			Data.speed[trade.dir].push([trade.timestamp*1000,trade.frenzy]);
+			Data.speed[trade.dir].push([trade.timestamp*1000,trade.speed]);
 			Data.orders[trade.dir].push([trade.timestamp*1000,trade.orders]);
 			Data.incline[trade.dir].push([trade.timestamp*1000,trade.incline]);
 		})		
