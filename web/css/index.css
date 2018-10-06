@@ -31,18 +31,32 @@ body,html{
 .tooltip{
     padding:8px;
     font-size:.85em;
+    max-width:400px;
 }
 .tooltip .section{
     padding:5px 0;
+    white-space: normal;
 }
-.tooltip .dataitem{
+.tooltip .dataitem {
     display:inline-block;
+    white-space: nowrap;
     margin-right:5px;
 }
 .dataitem span{
     font-weight:bold;
 }
+.dataitem.peaked span{
+    color:orange;
+}
 .tooltip .heading{
-    border-bottom:1px solid white;
+    background:rgba(255,255,255,0.5);
+    color:white;
+    padding-left:8px;
     font-weight:bold;
+}
+.tooltip .spacer{
+    height:1px;
+    background:white;
+    margin:5px 8%;
+    opacity:0.5;
 }

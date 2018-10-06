@@ -35,6 +35,8 @@ module.exports = {
         "bank":true,
         "__rootdir":true,
         "Promise":true,
-        "Log":true
+        "Log":true,
+        "io":true,
+        "echarts":true
     }
 };

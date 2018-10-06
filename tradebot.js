@@ -1,27 +1,14 @@
 "use strict";
 
-const G = require("./lib/globals.js");
-
 global.__rootdir = __dirname;
-global.vars = G.globals.vars;
-global.wallet = G.globals.wallet;
-global.bank = G.globals.bank;
-global.state = G.globals.state;
 
-global.sauce = require("./settings/settings.json").sauce;
-if(process.argv[2] === "development") state.dev = true;
-if(process.argv[2] === "recorder") state.record = true;
-state.debug = {};
-
-require("./lib/logging.js");
-const File = require("./lib/files.js");
-if(!File.ready) process.exit();
-
-const time = require("./lib/tools/time.js");
-time.set();
+const {state,wallet} = require("./lib/globals.js");
+require("./lib/tools/time.js");
+const {Log} = require("./lib/logging.js");
 const recorder = require("./recorder/record.js");
-const Bitstamp = require("./lib/bitstamp_data.js");
+const Bitstamp = require("./lib/data.js");
 const Calc = require("./lib/calc.js");
+
 let predict;
 if(!state.record){
 	global.web = new require("./lib/graphserver.js").web();
