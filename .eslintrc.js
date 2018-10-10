@@ -37,6 +37,8 @@ module.exports = {
         "Promise":true,
         "Log":true,
         "io":true,
-        "echarts":true
+        "echarts":true,
+        "encoding":true,
+        "define":true
     }
 };

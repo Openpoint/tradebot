@@ -2,6 +2,7 @@
 
 /* eslint-disable no-console */
 import * as tools from "./tools.js";
+
 let Data;
 let minprice;
 let option;
@@ -28,7 +29,7 @@ export function setZoom(myChart){
 			if(!Series[newZoom]){
 				new tools.Smooth(newZoom);
 				setData();
-				Make.trade(tools.smooth[newZoom]);			
+				Make.Trade(tools.smooth[newZoom]);
 				option.series = getOption().series;
 			}else{
 				option.series = Series[newZoom];
@@ -36,18 +37,18 @@ export function setZoom(myChart){
 			option.dataZoom[0].realtime = newZoom === "data"?false:true;
 			myChart.setOption(option);
 			myChart.hideLoading();
-			
+
 		}
 		oldZoom = newZoom;
 	},1000);
 }
 export const Make = {
-	trade:function(data){
+	Trade:function(data){
 		if(!data) return;
 		let lasttrade;
-		let firsttrade;	
-		data.forEach((trade,i)=>{
-			
+		let firsttrade;
+		for(let i=0;i<data.length;i++){
+			const trade = data[i];
 			if(!trade.peaks) trade.peaks = {};
 			if(!minprice || trade.price < minprice) minprice = trade.price;
 			Data.price.price.push([trade.timestamp,trade.price]);
@@ -55,7 +56,7 @@ export const Make = {
 			Data.price.target.push([trade.timestamp,trade.target]);
 
 			Data.trend.trend.push([trade.timestamp,trade.trend]);
-			Data.trend.peak.push([trade.timestamp,trade.peaks.trend]);
+			Data.trend.doldrum.push([trade.timestamp,trade.triggered.doldrum]);
 
 			Data.inertia.inertia.push([trade.timestamp,trade.inertia]);
 			Data.inertia.peak.push([trade.timestamp,trade.peaks.inertia]);
@@ -66,38 +67,36 @@ export const Make = {
 			Data.orders.orders.push([trade.timestamp,trade.orders]);
 			Data.orders.peak.push([trade.timestamp,trade.peaks.orders]);
 
+			Data.incline.incline.push([trade.timestamp,trade.incline]);
 			Data.incline.short.push([trade.timestamp,trade.inclineshort]);
-			Data.incline.peakshort.push([trade.timestamp,trade.peaks.inclineshort]);
 			Data.incline.long.push([trade.timestamp,trade.inclinelong]);
-			Data.incline.peaklong.push([trade.timestamp,trade.peaks.inclinelong]);
+			Data.incline.peak.push([trade.timestamp,trade.peaks.incline]);
 
 			Data.peaked.peak.push([trade.timestamp,trade.triggered.peaked,trade.triggers]);
 			Data.peaked.good.push([trade.timestamp,trade.triggered.good]);
 			Data.peaked.total.push([trade.timestamp,trade.triggered.total]);
-			//Data.peaked.total.push([trade.timestamp,trade.peaked.peak+trade.peaked.good]);
 			Data.peaked.glut.push([trade.timestamp,-trade.triggered.glut]);
-			Data.peaked.doldrum.push([trade.timestamp,-trade.triggered.doldrum]);
-
-			//Data.triggers.push([trade.timestamp,0,trade.triggers]);
+			
 
 			if(i === data.length-1) lasttrade = trade.timestamp;
 			if(i === 0) firsttrade = trade.timestamp;
-		}); 
+		}
 		if(!option.dataZoom.startValue) option.dataZoom.startValue = firsttrade;
 		if(!option.dataZoom.endValue) option.dataZoom.endValue = lasttrade;
-		option.yAxis[0].min = minprice-100;		
+		option.yAxis[0].min = minprice-100;
 	},
 	buysell:function(data){
-		if(!data) return;		
-		data.forEach((trade)=>{
+		if(!data) return;
+		for(let i=0;i<data.length;i++){
+			const trade = data[i];
 			Data.price[trade.dir].push([trade.timestamp,trade.price]);
 			Data.trend[trade.dir].push([trade.timestamp,trade.trend]);
 			Data.inertia[trade.dir].push([trade.timestamp,trade.inertia]);
 			Data.speed[trade.dir].push([trade.timestamp,trade.speed]);
 			Data.orders[trade.dir].push([trade.timestamp,trade.orders]);
-			Data.incline[trade.dir].push([trade.timestamp,trade.inclinelong]);
+			Data.incline[trade.dir].push([trade.timestamp,trade.incline]);
 			Data.peaked[trade.dir].push([trade.timestamp,trade.triggered.total]);
-		});		
+		}
 	}
 };
 
@@ -142,13 +141,13 @@ export function getOption() {
 			new series({name:"Good",type:"line",data:Data.peaked.good,color:"blue",fill:true,index:1,width:0.5,step:"middle"}),
 			new series({name:"Total",type:"line",data:Data.peaked.total,color:"black",index:1,step:"middle",width:1}),
 			new series({name:"Glut",type:"line",data:Data.peaked.glut,color:"dodgerblue",index:1,width:1,fill:true,step:"middle"}),
-			new series({name:"Doldrum",type:"line",data:Data.peaked.doldrum,color:"orange",index:1,width:1,fill:true,step:"middle"}),
+			
 			new series({name:"Buy",type:"scatter",data:Data.peaked.buy,color:"lime",index:1}),
 			new series({name:"Sell",type:"scatter",data:Data.peaked.sell,color:"red",index:1}),
 			//new series({name:"Data",type:"custom",data:Data.triggers,index:1}),
 
 			new series({name:"Trend",type:"line",data:Data.trend.trend,color:"dodgerblue",width:1,index:2,fill:true}),
-			new series({name:"Peak",type:"line",data:Data.trend.peak,color:"dodgerblue",index:2,style:"dots",width:1}),		
+			new series({name:"Doldrum",type:"line",data:Data.trend.doldrum,color:"orange",index:2,width:1}),
 			new series({name:"Buy",type:"scatter",data:Data.trend.buy,color:"lime",index:2}),
 			new series({name:"Sell",type:"scatter",data:Data.trend.sell,color:"red",index:2}),
 
@@ -167,10 +166,10 @@ export function getOption() {
 			new series({name:"Buy",type:"scatter",data:Data.orders.buy,color:"lime",index:5}),
 			new series({name:"Sell",type:"scatter",data:Data.orders.sell,color:"red",index:5}),
 
-			new series({name:"Incline",type:"line",data:Data.incline.short,color:"blue",fill:true,index:6}),
-			new series({name:"Peak",type:"line",data:Data.incline.peakshort,color:"blue",index:6,style:"dots",width:1}),
-			new series({name:"Incline",type:"line",data:Data.incline.long,color:"orange",fill:true,index:6}),
-			new series({name:"Peak",type:"line",data:Data.incline.peaklong,color:"orange",index:6,style:"dots",width:1}),
+			new series({name:"Incline",type:"line",data:Data.incline.incline,color:"blue",index:6}),
+			new series({name:"Peak",type:"line",data:Data.incline.peak,color:"blue",index:6,style:"dots",width:1}),
+			new series({name:"short",type:"line",data:Data.incline.short,color:"red",index:6}),
+			new series({name:"long",type:"line",data:Data.incline.long,color:"green",fill:true,index:6}),
 			new series({name:"Buy",type:"scatter",data:Data.incline.buy,color:"lime",index:6}),
 			new series({name:"Sell",type:"scatter",data:Data.incline.sell,color:"red",index:6}),
 
@@ -216,34 +215,37 @@ function formatter(params){
 	let index;
 	let string = "<div class='tooltip'>";
 	if (typeof params.length === "number") {
-		params.forEach((p, i) => {
+		for(let i=0;i<params.length;i++){
+			const p = params[i];
 			if ((p.axisIndex === index + 1)) string += "</div>";
 			if (p.axisIndex !== index) {
 				string += (
-					"<div class='section s" + p.axisIndex + "'><div class='heading'>" + 
-					(p.seriesName ==="Peaked"?"Triggers":p.seriesName) + 
+					"<div class='section s" + p.axisIndex + "'><div class='heading'>" +
+					(p.seriesName ==="Peaked"?"Triggers":p.seriesName) +
 					"</div>");
-			}		
-			if (p.data[2]) {		
+			}
+			if (p.data[2]) {
 				let newstring = "";
 				let newstring2 = "";
-				Object.keys(p.data[2]).forEach((k) => {
+				const keys = Object.keys(p.data[2]);
+				for(let i=0;i<keys.length;i++){
+					const k = keys[i];
 					if(row.indexOf(k) > -1){
 						newstring += "<div class='dataitem triggers'>"+k + ":<span>" + p.data[2][k] + " </span></div>";
 					}else{
 						newstring2 += "<div class='dataitem'>"+k + ":<span>" + p.data[2][k] + " </span></div>";
-					} 
-				});
+					}
+				}
 				string += newstring + "<div class='spacer'></div>";
 				string += newstring2 +"<div class='spacer'></div>";
 				//if (i === params.length - 1) string += "</div>";
-				
+
 			}
 			let C = row2.indexOf(p.seriesName) > -1?" peaked":"";
 			string += ("<div class='dataitem"+C+"'>" + p.seriesName + ": <span>" + p.data[1] + "</span></div>");
-			if (i === params.length - 1) string += "</div>";			
-			index = p.axisIndex;
-		});
+			if (i === params.length - 1) string += "</div>";
+			index = p.axisIndex; 
+		}
 	} else {
 		string += ("<div class='section'>" + params.marker + params.seriesName + ": " + params.data[1] + "</div>");
 	}
@@ -264,7 +266,7 @@ function xaxis(index, show) {
 	let x = {
 		type: "time",
 		position: "bottom",
-		
+
 		silent: true,
 		axisLabel: {
 			show: show || false,
@@ -360,9 +362,9 @@ function setData() {
 		},
 		trend:{
 			trend:[],
+			doldrum:[],
 			buy:(Data?Data.trend.buy:[]),
-			sell:(Data?Data.trend.sell:[]),
-			peak:[],
+			sell:(Data?Data.trend.sell:[])
 		},
 		speed:{
 			speed:[],
@@ -377,21 +379,20 @@ function setData() {
 			peak: []
 		},
 		incline: {
-			short: [],
-			long: [],
+			incline: [],
+			short:[],
+			long:[],
 			buy:(Data?Data.incline.buy:[]),
 			sell:(Data?Data.incline.sell:[]),
-			peakshort: [],
-			peaklong: []
+			peak: []
 		},
 		peaked:{
 			peak:[],
 			good:[],
 			total:[],
 			glut:[],
-			doldrum:[],
 			buy:(Data?Data.peaked.buy:[]),
-			sell:(Data?Data.peaked.sell:[]),			
+			sell:(Data?Data.peaked.sell:[]),
 		}
 	};
 }

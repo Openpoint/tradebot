@@ -5,6 +5,7 @@
 import * as plot from "./plots.js";
 import * as tools from "./tools.js";
 
+const {decode} = encoding;
 const socket = io();
 const myChart = echarts.init(document.getElementById("chart"));
 let daterange;
@@ -22,13 +23,13 @@ socket.on("connect",()=>{
 socket.on("all",(data)=>{
 	if(ready) return;
 	ready = true;
-	console.log(data);
-	let diff = (data.trade[data.trade.length-1].timestamp - data.trade[0].timestamp);
+	data = decode(data);
+	let diff = (data.Trade[data.Trade.length-1].timestamp - data.Trade[0].timestamp);
 	plot.init(tools.getZoom(diff));
 
-	new tools.Smooth(plot.initzoom,data.trade);
+	new tools.Smooth(plot.initzoom,data.Trade);
 	let option = plot.getOption();
-	plot.Make.trade(tools.smooth[plot.initzoom]);
+	plot.Make.Trade(tools.smooth[plot.initzoom]);
 	plot.Make.buysell(data.buysell);	
 	myChart.setOption(option);
 	myChart.hideLoading();

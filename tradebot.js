@@ -44,6 +44,7 @@ if(!state.record){
 		}
 		if(!state.dev){
 			state.trade_dir = wallet.coin && wallet.fiat < 0.1?"sell":"buy";
+			state.opp_trade_dir = state.trade_dir === "sell"?"buy":"sell";
 		}else{
 			wallet.coin = 1;
 			wallet.fiat = 0;
@@ -51,7 +52,7 @@ if(!state.record){
 		}
 		Log.info("Trading direction: "+state.trade_dir);
 		const getter = require("./recorder/getter.js");
-		getter.get(Buffer,"20180815");
+		getter.get(Buffer,"20180621"); //20180815
 	});
 }
 

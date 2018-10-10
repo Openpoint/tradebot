@@ -44,7 +44,7 @@ if(fs.existsSync(recording)){
 				fs.copyFileSync(f.file,f.file2);
 			}			
 		}
-	})
+	});
 }
 
 module.exports.get = function(buffer,start){
