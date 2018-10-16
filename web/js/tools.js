@@ -121,7 +121,7 @@ Smooth.prototype.compress = function(batch,trig){
 		}
 		i++;
 	}
-	if (compressed.timestamp) compressed.timestamp = Math.round(compressed.timestamp/batch.length); 
+	if (compressed.timestamp) compressed.timestamp = (compressed.timestamp/batch.length).round(); 
 	return [compressed,peaks,triggers,triggered];
 };
 

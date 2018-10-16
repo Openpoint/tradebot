@@ -48,12 +48,12 @@ function start(ts){
 }
 function prune(datafile,dir){
 	let now = datafile.split("/").pop().replace("record","");
-	now = time.toSeconds(now+"t");
-	let ago = time.toSeconds("3d");
+	now = (now+"t").toSeconds();
+	let ago = ("3d").toSeconds();
 	let files = fs.readdirSync(dir).filter((f)=>{           
 		if(f.startsWith("record")){
 			let then = f.replace("record","")+"t";
-			then = time.toSeconds(then);
+			then = then.toSeconds();
 			return now - then >= ago;
 		}           
 		return false; 

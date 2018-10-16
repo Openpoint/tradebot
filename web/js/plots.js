@@ -56,6 +56,7 @@ export const Make = {
 			Data.price.target.push([trade.timestamp,trade.target]);
 
 			Data.trend.trend.push([trade.timestamp,trade.trend]);
+			Data.trend.peak.push([trade.timestamp,trade.peaks.trend]);
 			Data.trend.doldrum.push([trade.timestamp,trade.triggered.doldrum]);
 
 			Data.inertia.inertia.push([trade.timestamp,trade.inertia]);
@@ -72,7 +73,7 @@ export const Make = {
 			Data.incline.long.push([trade.timestamp,trade.inclinelong]);
 			Data.incline.peak.push([trade.timestamp,trade.peaks.incline]);
 
-			Data.peaked.peak.push([trade.timestamp,trade.triggered.peaked,trade.triggers]);
+			Data.peaked.peak.push([trade.timestamp,trade.triggered.peaks,trade.triggers]);
 			Data.peaked.good.push([trade.timestamp,trade.triggered.good]);
 			Data.peaked.total.push([trade.timestamp,trade.triggered.total]);
 			Data.peaked.glut.push([trade.timestamp,-trade.triggered.glut]);
@@ -148,6 +149,7 @@ export function getOption() {
 
 			new series({name:"Trend",type:"line",data:Data.trend.trend,color:"dodgerblue",width:1,index:2,fill:true}),
 			new series({name:"Doldrum",type:"line",data:Data.trend.doldrum,color:"orange",index:2,width:1}),
+			new series({name:"Peak",type:"line",data:Data.trend.peak,color:"dodgerblue",index:2,width:0.5,step:"middle"}),
 			new series({name:"Buy",type:"scatter",data:Data.trend.buy,color:"lime",index:2}),
 			new series({name:"Sell",type:"scatter",data:Data.trend.sell,color:"red",index:2}),
 
@@ -363,6 +365,7 @@ function setData() {
 		trend:{
 			trend:[],
 			doldrum:[],
+			peak:[],
 			buy:(Data?Data.trend.buy:[]),
 			sell:(Data?Data.trend.sell:[])
 		},

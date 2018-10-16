@@ -11,36 +11,30 @@
 	"datafile":"tradedata",
 	"sauce":{
 		"glutlimits":{
-			"sentiment":[0,0],
-			"trend":[0,0],
-			"inertia":[0,0],
-			"speed":[0,0],
-			"orders":[0,0],        
-			"inclineshort":[0,0],
-			"inclinelong":[0,0]           
-		},
-		"limits":{           
-			"sentiment":[0,0],
-			"trend":[0,0],
 			"inertia":[0,0],
 			"speed":[0,0],
 			"orders":[0,0],
-			"inclineshort":[0,0],
-			"inclinelong":[0,0]           
+			"incline":[0,0]
 		},
-		"weights":{           
-			"sentiment":0,	
+		"limits":{
+			"inertia":[0,0],
+			"speed":[0,0],
+			"orders":[0,0],
+			"incline":[0,0]
+		},
+		"weights":{
 			"inertia":0,
 			"speed":0,
 			"orders":0,
-			"inclineshort":0,
-			"inclinelong":0			
+			"incline":0
 		},
 		"triggers":{
-			"total":0,
-			"peaked":0,
-			"price":0,
-			"pricelong":0           
+			"total":0
+		},
+		"cliff":{
+			"trend":0,
+			"time":"0h",
+			"price":0
 		},
 		"emergency":{
 			"cut":"0h",
@@ -48,7 +42,6 @@
 		},
 		"smoothing":"0s",
 		"long_average":"0h",
-		"short_average":"0m",
-		"decay_time":"0h"
+		"short_average":"0m"
 	}
 }

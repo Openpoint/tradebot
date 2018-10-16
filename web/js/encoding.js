@@ -2,10 +2,10 @@
 
 const keys = {
 	trade:["timestamp","price","dir","trend","inertia","speed","incline","orders","target","triggered"],
-	peaks:["inertia","speed","orders","incline"],
-	triggered:["glut","doldrum","peaked","good","total"],
+	peaks:["inertia","speed","orders","incline","trend"],
+	triggered:["glut","doldrum","peaks","good","total"],
 	extra:["average","peaks","triggers","inclineshort","inclinelong"],
-	triggers:["emergency","inertia","speed","orders","incline","profit","cliff"]
+	triggers:["emergency","inertia","speed","orders","incline","profit","cliff","dataloss"]
 };
 keys.buysell = keys.trade;
 keys.Trade = keys.trade.concat(keys.extra);
@@ -41,7 +41,9 @@ function encode(data,type){
 	let a = [];
 	for(let i=0;i<keys[type].length;i++){
 		const key = keys[type][i];
-		a.push(data[key]);
+		let val = data[key];
+		if(typeof val === "number" && key !== "timestamp") val = val.toFiat();
+		a.push(val);
 	}
 	return a;
 }

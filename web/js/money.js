@@ -4,7 +4,7 @@ let state,vars;
 const Ex = {};
 
 Ex.initMoney = function(){
-	let G = require("../globals.js");
+	let G = require("../../lib/globals.js");
 	vars = G.vars;
 	state = G.state;
 };
@@ -12,6 +12,8 @@ Ex.initMoney = function(){
 const crypto = Ex.crypto = 100000000;
 const fiat = Ex.fiat = 100;
 const factor = Ex.factor = crypto*fiat;
+
+
 
 Number.prototype.factor = function(){
 	return this*factor;
@@ -24,15 +26,6 @@ Number.prototype.toCrypto = function(){
 };
 Number.prototype.round = function(){
 	return Math.round(this);
-};
-
-const round = Ex.round = {
-	fiat:function(f){
-		return Math.round(f*fiat)/fiat;
-	},
-	crypto:function(c){
-		return Math.round(c*crypto)/crypto;
-	}
 };
 
 Ex.string = {
@@ -54,7 +47,7 @@ Ex.string = {
 				i--;
 			}			
 		}
-		return f.join(".");		
+		return f.join(".");
 	}
 };
 
@@ -66,51 +59,61 @@ Ex.bid = function(val){
 		val -= fee(val);
 		val -= fee(val);
 	}
-	return round.fiat(val);
+	return val.round();
 };
 
 const fee = Ex.fee = function(val){
+	
 	return val*(vars.expense/100);
 };
 
+Ex.round = {
+	fiat:function(f){
+		return Math.round(f*fiat)/fiat;
+	},
+	crypto:function(c){
+		return Math.round(c*crypto)/crypto;
+	}
+};
+
 Ex.expense = function(vol){
-	if(vol < 20000){
+	if(vol < (20000).factor()){
 		vars.expense = 0.25;
 		return;
 	}
-	if(vol < 100000){
+	if(vol < (100000).factor()){
 		vars.expense = 0.24;
 		return;
 	}
-	if(vol < 200000){
+	if(vol < (200000).factor()){
 		vars.expense = 0.22;
 		return;
 	}
-	if(vol < 400000){
+	if(vol < (400000).factor()){
 		vars.expense = 0.20;
 		return;
 	}
-	if(vol < 600000){
+	if(vol < (600000).factor()){
 		vars.expense = 0.15;
 		return;
 	}
-	if(vol < 1000000){
+	if(vol < (1000000).factor()){
 		vars.expense = 0.14;
 		return;
 	}
-	if(vol < 2000000){
+	if(vol < (2000000).factor()){
 		vars.expense = 0.13;
 		return;
 	}
-	if(vol < 4000000){
+	if(vol < (4000000).factor()){
 		vars.expense = 0.12;
 		return;
 	}
-	if(vol < 20000000){
+	if(vol < (20000000).factor()){
 		vars.expense = 0.11;
 		return;
 	}
-	if(vol >= 20000000){
+	if(vol >= (20000000).factor()){
 		vars.expense = 0.10;
 	}
 };
