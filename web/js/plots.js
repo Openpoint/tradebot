@@ -2,6 +2,7 @@
 
 /* eslint-disable no-console */
 import * as tools from "./tools.js";
+import {makeSale,printSales,sales} from "./sales.js";
 
 let Data;
 let minprice;
@@ -97,7 +98,10 @@ export const Make = {
 			Data.orders[trade.dir].push([trade.timestamp,trade.orders]);
 			Data.incline[trade.dir].push([trade.timestamp,trade.incline]);
 			Data.peaked[trade.dir].push([trade.timestamp,trade.triggered.total]);
+
+			sales.push(makeSale(trade));
 		}
+		printSales();
 	}
 };
 

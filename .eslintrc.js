@@ -37,7 +37,9 @@ module.exports = {
         "Promise":true,
         "io":true,
         "echarts":true,
-        "encoding":true,
+        "tb_encoding":true,
+        "tb_time":true,
+        "tb_money":true,
         "define":true
     }
 };

@@ -10,8 +10,7 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/index.css">
     <script src="node_modules/echarts/dist/echarts-en.js"></script>
-    <script src="/js/encoding.js"></script>
-    <script src="/js/money.js"></script>
+
 </head>
 
 <body>
@@ -19,12 +18,19 @@
         <div id="chart"></div>
         <div id="panel">
             <div id="controls">
+                <!--
                 <div class = 'control' id = 'prev'>prev</div>
                 <div class = 'control' id = 'next'>next</div>
+                -->
+                <div class = "control" id = "dotrade">Test Trade</div>
             </div>
+            <div id = "sales"></div>
         </div>
     </div>   
     <script src="/socket.io/socket.io.js"></script>
+    <script src="tools/encoding.js"></script>
+    <script src="tools/money.js"></script>
+    <script src="tools/time.js"></script>
     <script src="js/index.js" type="module"></script>
 </body>
 </html>

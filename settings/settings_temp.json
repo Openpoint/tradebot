@@ -1,9 +1,9 @@
 {
 	"markets":{
 		"bitstamp":{
-			"user_id":"",
-			"api_key":"",
-			"api_secret":""
+            "user_id":"",
+            "api_key":"",
+            "api_secret":""
 		},
 		"pair":"btcusd"
 	},
@@ -14,27 +14,30 @@
 			"inertia":[0,0],
 			"speed":[0,0],
 			"orders":[0,0],
-			"incline":[0,0]
+			"incline":[0,0],
+			"trend":[0,0]
 		},
 		"limits":{
 			"inertia":[0,0],
 			"speed":[0,0],
 			"orders":[0,0],
-			"incline":[0,0]
+			"incline":[0,0],
+			"trend":[0,0]
 		},
 		"weights":{
 			"inertia":0,
 			"speed":0,
 			"orders":0,
-			"incline":0
+			"incline":0,
+			"trend":0
 		},
 		"triggers":{
 			"total":0
 		},
 		"cliff":{
-			"trend":0,
 			"time":"0h",
-			"price":0
+			"price":0,
+			"total":0
 		},
 		"emergency":{
 			"cut":"0h",

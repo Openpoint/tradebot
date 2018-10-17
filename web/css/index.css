@@ -2,6 +2,9 @@ body,html{
     position:relative;
     font-family:sans-serif;
 }
+strong{
+    font-weight:bold;
+}
 *{
     box-sizing: border-box;
 }
@@ -20,6 +23,9 @@ body,html{
 #panel{
     width:300px;
     padding:12px;
+    height:100%;
+    position:relative;
+    overflow:hidden;
 }
 #controls{
     display:flex;
@@ -59,4 +65,23 @@ body,html{
     background:white;
     margin:5px 8%;
     opacity:0.5;
+}
+
+#sales {
+    font-size:.8em;
+    line-height:1.2em;
+    height:100%;
+    overflow-y:scroll;
+}
+#sales .sale{
+    margin:.25em 0;
+    padding-left:5px;
+}
+#sales .sale.buy{
+    border:1px solid green;
+    border-left-width:5px;
+}
+#sales .sale.sell{
+    border:1px solid red;
+    border-left-width:5px;
 }

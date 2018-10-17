@@ -36,6 +36,7 @@ process.on("message",(m)=>{
 if(!fs.existsSync(dir)) fs.mkdirSync(dir);
 if(fs.existsSync(recording)){
 	let rs = fs.readdirSync(recording).map((f)=>{
+		if(!f.startsWith("record")) return false;
 		let f2 = path.join(recording,f);
 		let f3 = path.join(dir,f);
 		let stats = fs.statSync(f2);
@@ -46,6 +47,7 @@ if(fs.existsSync(recording)){
 		};
 	});
 	rs.forEach((f)=>{
+		if(!f) return;
 		if(!fs.existsSync(f.file2)){
 			fs.copyFileSync(f.file,f.file2);
 		}else{

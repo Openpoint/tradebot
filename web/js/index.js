@@ -5,7 +5,7 @@
 import * as plot from "./plots.js";
 import * as tools from "./tools.js";
 
-const {decode} = encoding;
+const {decode} = tb_encoding;
 const socket = io();
 const myChart = echarts.init(document.getElementById("chart"));
 let daterange;
@@ -23,6 +23,7 @@ socket.on("connect",()=>{
 socket.on("all",(data)=>{
 	if(ready) return;
 	ready = true;
+	console.log(data)
 	data = decode(data);
 	let diff = (data.Trade[data.Trade.length-1].timestamp - data.Trade[0].timestamp);
 	plot.init(tools.getZoom(diff));
@@ -30,6 +31,7 @@ socket.on("all",(data)=>{
 	new tools.Smooth(plot.initzoom,data.Trade);
 	let option = plot.getOption();
 	plot.Make.Trade(tools.smooth[plot.initzoom]);
+	
 	plot.Make.buysell(data.buysell);	
 	myChart.setOption(option);
 	myChart.hideLoading();
@@ -42,6 +44,11 @@ window.onresize = function() {
 	},10);
 	
 };
+document.getElementById("dotrade").addEventListener("click",()=>{
+	if(!ready) return;
+	socket.emit("dotrade",true);	
+});
+/*
 document.getElementById("prev").addEventListener("click",()=>{
 	if(!ready) return;
 	daterange = tools.getRange(-1);
@@ -52,10 +59,11 @@ document.getElementById("next").addEventListener("click",()=>{
 	daterange = tools.getRange(1);
 	update();
 });
+
 function update(){
 	console.log(daterange);
 	myChart.showLoading();
 	ready = false;
 	socket.emit("data",daterange);
 }
-
+*/

@@ -54,7 +54,6 @@ export function Smooth(level,data){
 	while (this.i < smooth.data.length){
 		this.flatten();
 	}
-	console.log(smooth);
 }
 
 Smooth.prototype.flatten = function(){
