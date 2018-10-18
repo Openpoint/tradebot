@@ -78,5 +78,5 @@ Number pairs `[0,0]` denote high/low values.
 
 * **long_average:** The time over which all trade items are averaged into a reading against which `short_average` is compared.
 
-* **short_average** The time over which all trade items are averaged into a rading which is compared against `long_average`
+* **short_average** The time over which all trade items are averaged into a reading which is compared against `long_average`
 
