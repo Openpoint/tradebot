@@ -28,11 +28,6 @@ module.exports = {
         ]
     },
     "globals":{
-        "sauce":true,
-        "state":true,
-        "vars":true,
-        "wallet":true,
-        "bank":true,
         "__rootdir":true,
         "Promise":true,
         "io":true,

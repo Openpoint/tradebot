@@ -2,25 +2,37 @@
 
 /* eslint-disable no-console */
 import * as tools from "./tools.js";
-import {makeSale,printSales,sales} from "./sales.js";
+import {printSale} from "./sales.js";
 
-let Data;
+let Data = {};
 let minprice;
-let option;
+export let option;
 let oldZoom;
 let zto;
+let newZoom;
+let myChart;
 let Series = {};
-export let initzoom;
-export function init(z){
-	console.log(z);
-	initzoom = z;
+
+export function resetSeries(){
+	Series = {};
 }
-export function setZoom(myChart){
+export function init(z,chart){
+	myChart = chart;
+	newZoom = z;
+	setData("data");
+	setData();
+}
+export function getZoom(){
+	return newZoom;
+}
+export function changeZoom(zoom){
+	newZoom = zoom;
+}
+export function setZoom(){
 	let zoom = myChart.getOption().dataZoom[0];
 	let diff = Math.round((zoom.endValue - zoom.startValue));
-	let newZoom = tools.getZoom(diff);
-	if(!oldZoom) oldZoom = initzoom;
-	console.log(newZoom);
+	newZoom = tools.getZoom(diff);
+	if(!oldZoom) oldZoom = newZoom;
 	(oldZoom !== newZoom)?myChart.showLoading():myChart.hideLoading();
 	clearTimeout(zto);
 	zto = setTimeout(()=>{
@@ -44,69 +56,79 @@ export function setZoom(myChart){
 	},1000);
 }
 export const Make = {
-	Trade:function(data){
+	Trade:function(data,update){
 		if(!data) return;
+		const newOption = myChart.getOption();
+		let lastTime;
+		if(update && newOption){
+			option = newOption;
+			const last = Data[update].price.price.length-1;
+			if(last >= 0) lastTime = Data[update].price.price[last][0];
+		}
 		let lasttrade;
 		let firsttrade;
+		
 		for(let i=0;i<data.length;i++){
 			const trade = data[i];
-			if(!trade.peaks) trade.peaks = {};
-			if(!minprice || trade.price < minprice) minprice = trade.price;
-			Data.price.price.push([trade.timestamp,trade.price]);
-			Data.price.average.push([trade.timestamp,trade.average]);
-			Data.price.target.push([trade.timestamp,trade.target]);
-
-			Data.trend.trend.push([trade.timestamp,trade.trend]);
-			Data.trend.peak.push([trade.timestamp,trade.peaks.trend]);
-			Data.trend.doldrum.push([trade.timestamp,trade.triggered.doldrum]);
-
-			Data.inertia.inertia.push([trade.timestamp,trade.inertia]);
-			Data.inertia.peak.push([trade.timestamp,trade.peaks.inertia]);
-
-			Data.speed.speed.push([trade.timestamp,trade.speed]);
-			Data.speed.peak.push([trade.timestamp,trade.peaks.speed]);
-
-			Data.orders.orders.push([trade.timestamp,trade.orders]);
-			Data.orders.peak.push([trade.timestamp,trade.peaks.orders]);
-
-			Data.incline.incline.push([trade.timestamp,trade.incline]);
-			Data.incline.short.push([trade.timestamp,trade.inclineshort]);
-			Data.incline.long.push([trade.timestamp,trade.inclinelong]);
-			Data.incline.peak.push([trade.timestamp,trade.peaks.incline]);
-
-			Data.peaked.peak.push([trade.timestamp,trade.triggered.peaks,trade.triggers]);
-			Data.peaked.good.push([trade.timestamp,trade.triggered.good]);
-			Data.peaked.total.push([trade.timestamp,trade.triggered.total]);
-			Data.peaked.glut.push([trade.timestamp,-trade.triggered.glut]);
-			
-
-			if(i === data.length-1) lasttrade = trade.timestamp;
-			if(i === 0) firsttrade = trade.timestamp;
+			if(!lastTime || trade.timestamp > lastTime){
+				if(!trade.peaks) trade.peaks = {};
+				if(!minprice || trade.price < minprice) minprice = trade.price;
+				Data[update||newZoom].price.price.push([trade.timestamp,trade.price]);
+				Data[update||newZoom].price.average.push([trade.timestamp,trade.average]);
+				Data[update||newZoom].price.target.push([trade.timestamp,trade.target]);
+	
+				Data[update||newZoom].trend.trend.push([trade.timestamp,trade.trend]);
+				Data[update||newZoom].trend.peak.push([trade.timestamp,trade.peaks.trend]);
+				Data[update||newZoom].trend.doldrum.push([trade.timestamp,trade.triggered.doldrum]);
+	
+				Data[update||newZoom].inertia.inertia.push([trade.timestamp,trade.inertia]);
+				Data[update||newZoom].inertia.peak.push([trade.timestamp,trade.peaks.inertia]);
+	
+				Data[update||newZoom].speed.speed.push([trade.timestamp,trade.speed]);
+				Data[update||newZoom].speed.peak.push([trade.timestamp,trade.peaks.speed]);
+	
+				Data[update||newZoom].orders.orders.push([trade.timestamp,trade.orders]);
+				Data[update||newZoom].orders.peak.push([trade.timestamp,trade.peaks.orders]);
+	
+				Data[update||newZoom].incline.incline.push([trade.timestamp,trade.incline]);
+				Data[update||newZoom].incline.short.push([trade.timestamp,trade.inclineshort]);
+				Data[update||newZoom].incline.long.push([trade.timestamp,trade.inclinelong]);
+				Data[update||newZoom].incline.peak.push([trade.timestamp,trade.peaks.incline]);
+	
+				Data[update||newZoom].peaked.peak.push([trade.timestamp,trade.triggered.peaks,trade.triggers]);
+				Data[update||newZoom].peaked.good.push([trade.timestamp,trade.triggered.good]);
+				Data[update||newZoom].peaked.total.push([trade.timestamp,trade.triggered.total]);
+				Data[update||newZoom].peaked.glut.push([trade.timestamp,-trade.triggered.glut]);
+				
+				if(!update){
+					if(i === data.length-1) lasttrade = trade.timestamp;
+					if(i === 0) firsttrade = trade.timestamp;
+				}
+			}
 		}
-		if(!option.dataZoom.startValue) option.dataZoom.startValue = firsttrade;
-		if(!option.dataZoom.endValue) option.dataZoom.endValue = lasttrade;
+		if(!update){
+			if(!option.dataZoom.startValue) option.dataZoom.startValue = firsttrade;
+			if(!option.dataZoom.endValue) option.dataZoom.endValue = lasttrade;
+		}
 		option.yAxis[0].min = minprice-100;
 	},
-	buysell:function(data){
+	buysell:function(data,update){
 		if(!data) return;
-		for(let i=0;i<data.length;i++){
-			const trade = data[i];
-			Data.price[trade.dir].push([trade.timestamp,trade.price]);
-			Data.trend[trade.dir].push([trade.timestamp,trade.trend]);
-			Data.inertia[trade.dir].push([trade.timestamp,trade.inertia]);
-			Data.speed[trade.dir].push([trade.timestamp,trade.speed]);
-			Data.orders[trade.dir].push([trade.timestamp,trade.orders]);
-			Data.incline[trade.dir].push([trade.timestamp,trade.incline]);
-			Data.peaked[trade.dir].push([trade.timestamp,trade.triggered.total]);
+		for(let trade of data){
+			Data[update||newZoom].price[trade.dir].push([trade.timestamp,trade.price]);
+			Data[update||newZoom].trend[trade.dir].push([trade.timestamp,trade.trend]);
+			Data[update||newZoom].inertia[trade.dir].push([trade.timestamp,trade.inertia]);
+			Data[update||newZoom].speed[trade.dir].push([trade.timestamp,trade.speed]);
+			Data[update||newZoom].orders[trade.dir].push([trade.timestamp,trade.orders]);
+			Data[update||newZoom].incline[trade.dir].push([trade.timestamp,trade.incline]);
+			Data[update||newZoom].peaked[trade.dir].push([trade.timestamp,trade.triggered.total]);
 
-			sales.push(makeSale(trade));
+			if(!update) printSale(trade);
 		}
-		printSales();
 	}
 };
 
 export function getOption() {
-	if(!Data) setData();
 	const o = {
 		grid: [
 			new grid("18%","4%"),
@@ -136,48 +158,48 @@ export function getOption() {
 			new yaxis("incline",6)
 		],
 		series: [
-			new series({name:"Price",type:"line",data:Data.price.price,color:"black",width:1.5}),
-			new series({name:"Average",type:"line",data:Data.price.average,color:"dodgerblue",width:0.5}),
-			new series({name:"Target",type:"line",data:Data.price.target,color:"rgba(0,0,0,.3)",style:"dots",width:1,fill:true,step:"end"}),
-			new series({name:"Buy",type:"scatter",data:Data.price.buy,color:"lime"}),
-			new series({name:"Sell",type:"scatter",data:Data.price.sell,color:"red"}),
+			new series({name:"Price",type:"line",data:Data[newZoom].price.price,color:"black",width:1.5}),
+			new series({name:"Average",type:"line",data:Data[newZoom].price.average,color:"dodgerblue",width:0.5}),
+			new series({name:"Target",type:"line",data:Data[newZoom].price.target,color:"rgba(0,0,0,.3)",style:"dots",width:1,fill:true,step:"end"}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].price.buy,color:"lime"}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].price.sell,color:"red"}),
 
-			new series({name:"Peaked",type:"line",data:Data.peaked.peak,color:"red",fill:true,index:1,width:0.5,step:"middle"}),
-			new series({name:"Good",type:"line",data:Data.peaked.good,color:"blue",fill:true,index:1,width:0.5,step:"middle"}),
-			new series({name:"Total",type:"line",data:Data.peaked.total,color:"black",index:1,step:"middle",width:1}),
-			new series({name:"Glut",type:"line",data:Data.peaked.glut,color:"dodgerblue",index:1,width:1,fill:true,step:"middle"}),
+			new series({name:"Peaked",type:"line",data:Data[newZoom].peaked.peak,color:"red",fill:true,index:1,width:0.5,step:"middle"}),
+			new series({name:"Good",type:"line",data:Data[newZoom].peaked.good,color:"blue",fill:true,index:1,width:0.5,step:"middle"}),
+			new series({name:"Total",type:"line",data:Data[newZoom].peaked.total,color:"black",index:1,step:"middle",width:1}),
+			new series({name:"Glut",type:"line",data:Data[newZoom].peaked.glut,color:"dodgerblue",index:1,width:1,fill:true,step:"middle"}),
 			
-			new series({name:"Buy",type:"scatter",data:Data.peaked.buy,color:"lime",index:1}),
-			new series({name:"Sell",type:"scatter",data:Data.peaked.sell,color:"red",index:1}),
-			//new series({name:"Data",type:"custom",data:Data.triggers,index:1}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].peaked.buy,color:"lime",index:1}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].peaked.sell,color:"red",index:1}),
+			//new series({name:"Data",type:"custom",data:Data[newZoom].triggers,index:1}),
 
-			new series({name:"Trend",type:"line",data:Data.trend.trend,color:"dodgerblue",width:1,index:2,fill:true}),
-			new series({name:"Doldrum",type:"line",data:Data.trend.doldrum,color:"orange",index:2,width:1}),
-			new series({name:"Peak",type:"line",data:Data.trend.peak,color:"dodgerblue",index:2,width:0.5,step:"middle"}),
-			new series({name:"Buy",type:"scatter",data:Data.trend.buy,color:"lime",index:2}),
-			new series({name:"Sell",type:"scatter",data:Data.trend.sell,color:"red",index:2}),
+			new series({name:"Trend",type:"line",data:Data[newZoom].trend.trend,color:"dodgerblue",width:1,index:2,fill:true}),
+			new series({name:"Doldrum",type:"line",data:Data[newZoom].trend.doldrum,color:"orange",index:2,width:1}),
+			new series({name:"Peak",type:"line",data:Data[newZoom].trend.peak,color:"dodgerblue",index:2,width:0.5,step:"middle"}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].trend.buy,color:"lime",index:2}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].trend.sell,color:"red",index:2}),
 
-			new series({name:"Inertia",type:"line",data:Data.inertia.inertia,color:"darkorange",fill:true,index:3}),
-			new series({name:"Peak",type:"line",data:Data.inertia.peak,color:"black",index:3,style:"dots",width:1}),
-			new series({name:"Buy",type:"scatter",data:Data.inertia.buy,color:"lime",index:3}),
-			new series({name:"Sell",type:"scatter",data:Data.inertia.sell,color:"red",index:3}),
+			new series({name:"Inertia",type:"line",data:Data[newZoom].inertia.inertia,color:"darkorange",fill:true,index:3}),
+			new series({name:"Peak",type:"line",data:Data[newZoom].inertia.peak,color:"black",index:3,style:"dots",width:1}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].inertia.buy,color:"lime",index:3}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].inertia.sell,color:"red",index:3}),
 
-			new series({name:"Speed",type:"line",data:Data.speed.speed,color:"SeaGreen",fill:true,index:4}),
-			new series({name:"Peak",type:"line",data:Data.speed.peak,color:"black",index:4,style:"dots",width:1}),
-			new series({name:"Buy",type:"scatter",data:Data.speed.buy,color:"lime",index:4}),
-			new series({name:"Sell",type:"scatter",data:Data.speed.sell,color:"red",index:4}),
+			new series({name:"Speed",type:"line",data:Data[newZoom].speed.speed,color:"SeaGreen",fill:true,index:4}),
+			new series({name:"Peak",type:"line",data:Data[newZoom].speed.peak,color:"black",index:4,style:"dots",width:1}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].speed.buy,color:"lime",index:4}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].speed.sell,color:"red",index:4}),
 
-			new series({name:"Orders",type:"line",data:Data.orders.orders,color:"violet",fill:true,index:5}),
-			new series({name:"Peak",type:"line",data:Data.orders.peak,color:"black",index:5,style:"dots",width:1}),
-			new series({name:"Buy",type:"scatter",data:Data.orders.buy,color:"lime",index:5}),
-			new series({name:"Sell",type:"scatter",data:Data.orders.sell,color:"red",index:5}),
+			new series({name:"Orders",type:"line",data:Data[newZoom].orders.orders,color:"violet",fill:true,index:5}),
+			new series({name:"Peak",type:"line",data:Data[newZoom].orders.peak,color:"black",index:5,style:"dots",width:1}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].orders.buy,color:"lime",index:5}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].orders.sell,color:"red",index:5}),
 
-			new series({name:"Incline",type:"line",data:Data.incline.incline,color:"blue",index:6}),
-			new series({name:"Peak",type:"line",data:Data.incline.peak,color:"blue",index:6,style:"dots",width:1}),
-			new series({name:"short",type:"line",data:Data.incline.short,color:"red",index:6}),
-			new series({name:"long",type:"line",data:Data.incline.long,color:"green",fill:true,index:6}),
-			new series({name:"Buy",type:"scatter",data:Data.incline.buy,color:"lime",index:6}),
-			new series({name:"Sell",type:"scatter",data:Data.incline.sell,color:"red",index:6}),
+			new series({name:"Incline",type:"line",data:Data[newZoom].incline.incline,color:"blue",index:6}),
+			new series({name:"Peak",type:"line",data:Data[newZoom].incline.peak,color:"blue",index:6,style:"dots",width:1}),
+			new series({name:"short",type:"line",data:Data[newZoom].incline.short,color:"red",index:6}),
+			new series({name:"long",type:"line",data:Data[newZoom].incline.long,color:"green",fill:true,index:6}),
+			new series({name:"Buy",type:"scatter",data:Data[newZoom].incline.buy,color:"lime",index:6}),
+			new series({name:"Sell",type:"scatter",data:Data[newZoom].incline.sell,color:"red",index:6}),
 
 
 		],
@@ -351,46 +373,46 @@ function series(i) {
 	return s;
 }
 
-function setData() {
-	Data = {
+export function setData(level) {
+	Data[level||newZoom] = {
 		price:{
 			price: [],
-			buy:(Data?Data.price.buy:[]),
-			sell:(Data?Data.price.sell:[]),
+			buy:(Data[newZoom]?Data[newZoom].price.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].price.sell:[]),
 			average:[],
 			target:[]
 		},
 		inertia:{
 			inertia:[],
-			buy:(Data?Data.inertia.buy:[]),
-			sell:(Data?Data.inertia.sell:[]),
+			buy:(Data[newZoom]?Data[newZoom].inertia.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].inertia.sell:[]),
 			peak:[]
 		},
 		trend:{
 			trend:[],
 			doldrum:[],
 			peak:[],
-			buy:(Data?Data.trend.buy:[]),
-			sell:(Data?Data.trend.sell:[])
+			buy:(Data[newZoom]?Data[newZoom].trend.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].trend.sell:[])
 		},
 		speed:{
 			speed:[],
-			buy:(Data?Data.speed.buy:[]),
-			sell:(Data?Data.speed.sell:[]),
+			buy:(Data[newZoom]?Data[newZoom].speed.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].speed.sell:[]),
 			peak:[]
 		},
 		orders: {
 			orders: [],
-			buy:(Data?Data.orders.buy:[]),
-			sell:(Data?Data.orders.sell:[]),
+			buy:(Data[newZoom]?Data[newZoom].orders.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].orders.sell:[]),
 			peak: []
 		},
 		incline: {
 			incline: [],
 			short:[],
 			long:[],
-			buy:(Data?Data.incline.buy:[]),
-			sell:(Data?Data.incline.sell:[]),
+			buy:(Data[newZoom]?Data[newZoom].incline.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].incline.sell:[]),
 			peak: []
 		},
 		peaked:{
@@ -398,8 +420,8 @@ function setData() {
 			good:[],
 			total:[],
 			glut:[],
-			buy:(Data?Data.peaked.buy:[]),
-			sell:(Data?Data.peaked.sell:[]),
+			buy:(Data[newZoom]?Data[newZoom].peaked.buy:[]),
+			sell:(Data[newZoom]?Data[newZoom].peaked.sell:[]),
 		}
 	};
 }

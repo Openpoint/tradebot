@@ -31,7 +31,7 @@ function batch(q){
 
 
 Bitstamp.channels.trades.bind("trade", function (data) {
-	if(state.loading){
+	if(state.loading && !state.record){
 		data._T = "trades";
 		Buffer.push(data);
 	}else{
@@ -41,7 +41,7 @@ Bitstamp.channels.trades.bind("trade", function (data) {
 });
 
 Bitstamp.channels.orders.bind("data", function (data) {
-	if(state.loading){
+	if(state.loading && !state.record){
 		data._T = "orders";
 		Buffer.push(data);
 	}else{
@@ -90,7 +90,7 @@ if(!state.record){
 		}
 		Log.info(wallet);
 		Log.info("Trading direction: "+state.trade_dir);
-		getter.send({start:"20180616"});
+		getter.send({start:"20180615"});
 	});
 }
 

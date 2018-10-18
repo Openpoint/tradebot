@@ -55,10 +55,20 @@ export function Smooth(level,data){
 		this.flatten();
 	}
 }
+export function updateSmooth(level,data){
+	this.level = level;
+	this.i =0;	
+	this.time = zoomLevels[level];
+	
+	while (this.i < data.length){
+		this.flatten(data);
+	}
+}
+updateSmooth.prototype = Smooth.prototype;
 
-Smooth.prototype.flatten = function(){
+Smooth.prototype.flatten = function(data){
 	const batch = [];	
-	let t = smooth.data;
+	let t = data||smooth.data;
 	this.start = [t[this.i].timestamp,t[this.i].dir];	
 		
 	while(
