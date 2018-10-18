@@ -1,5 +1,5 @@
 # Tradebot
-Automated trading on Bitstamp - A work in progress.
+Automated trading on Bitstamp.
 ![tradebot](https://user-images.githubusercontent.com/998947/47151580-05f97600-d2d2-11e8-88bb-508450b9c019.png)
 
 Tradebot is an algorithm that tries to predict market volatility and automatically trade at the highs/lows.
