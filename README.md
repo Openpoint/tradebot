@@ -6,11 +6,9 @@ Tradebot is an algorithm that tries to predict market volatility and automatical
 
 At this time, it is very much a work in progress and has, over 3 months of data, successfully turned 1BTC into 1.6BTC.
 
-For the brave, and before detailed documentation is available, here is the technical low-down:
-
 Tradebot is a Node.js project providing a http web interface (like the image above) at a specified port. It is set up to trade on [Bitstamp](https://bitstamp.net) in USD.
 
-To get going: 
+For the brave, and before detailed documentation is available, here is the low-down to get going: 
 * Clone this repo onto a Unix like machine, and install the node dependencies with `npm install`.
 * From the root dir of the project, copy `settings/settings_temp.json` to `settings/settings.json`.
 * Fill out the "sauce" section of the settings to start tuning your trading strategy (detailed instructions and explantions are coming in documentaton)
