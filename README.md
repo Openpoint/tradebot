@@ -9,9 +9,17 @@ At this time, it is very much a work in progress and has, over 3 months of data,
 Tradebot is a Node.js project providing a http web interface (like the image above) at a specified port. It is set up to trade on [Bitstamp](https://bitstamp.net) in USD.
 
 For the brave, and before detailed documentation is available, here is the low-down to get going: 
+
 * Clone this repo onto a Unix like machine, and install the node dependencies with `npm install`.
+
 * From the root dir of the project, copy `settings/settings_temp.json` to `settings/settings.json`.
-* Fill out the "sauce" section of the settings to start tuning your trading strategy (detailed instructions and explantions are coming in documentaton)
+
+* Fill out the ["sauce"](https://github.com/Openpoint/tradebot/blob/master/settings) section of the settings to start tuning your trading strategy.
+
 * Get some sample data by cloning [this repo](https://github.com/Openpoint/tradebotdata) into `recorder/data/recording`
-* Record your own data by running `node tradebot recorder` (to keep it running, `nohup node tradebot recorder &`)
-* Run `node tradebot development` to start a simulation. The web interface will be at the port specified in the settings.
+
+* Record your own data by running `node tradebot recorder`
+
+* Run `node tradebot development` to start a simulation. The http web interface will be at the port specified in the settings.
+
+More detailed documentation will become available as the project progresses.
