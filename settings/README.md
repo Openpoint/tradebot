@@ -1,0 +1,52 @@
+```json
+{
+	"markets":{
+		"bitstamp":{
+            "user_id":"",
+            "api_key":"",
+            "api_secret":""
+		},
+		"pair":"btcusd"
+	},
+	"port":80,
+	"datafile":"tradedata",
+	"sauce":{
+		"glutlimits":{
+			"inertia":[0,0],
+			"speed":[0,0],
+			"orders":[0,0],
+			"incline":[0,0],
+			"trend":[0,0]
+		},
+		"limits":{
+			"inertia":[0,0],
+			"speed":[0,0],
+			"orders":[0,0],
+			"incline":[0,0],
+			"trend":[0,0]
+		},
+		"weights":{
+			"inertia":0,
+			"speed":0,
+			"orders":0,
+			"incline":0,
+			"trend":0
+		},
+		"triggers":{
+			"total":0
+		},
+		"cliff":{
+			"time":"0h",
+			"price":0,
+			"total":0
+		},
+		"emergency":{
+			"cut":"0h",
+			"limit":0
+		},
+		"smoothing":"0s",
+		"long_average":"0h",
+		"short_average":"0m"
+	}
+}
+```
