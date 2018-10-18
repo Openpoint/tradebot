@@ -68,7 +68,7 @@ Number pairs `[0,0]` denote high/low values.
 * **emergency:** Condition where that market has moved unfavourably for the algorithm, and it will buy/sell at a loss.
   * **cut:** Time limit since the market was last profitable until tradebot may take emergency action
   * **limit:** The limit the market must have moved away from profit before tradebot will take emergency action.
-* **smoothing:** The time frequncy for which all incoming trades will be averaged into one trade item for analysis.
+* **smoothing:** The time frequency for which all incoming trades will be averaged into one trade item for analysis.
 * **long_average:** The time over which all trade items are averaged into a reading against which `short_average` is compared.
 * **short_average** The time over which all trade items are averaged into a rading which is compared against `long_average`
 
