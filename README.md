@@ -14,4 +14,4 @@ For the brave, and before detailed documentation is available, here is the low-d
 * Fill out the "sauce" section of the settings to start tuning your trading strategy (detailed instructions and explantions are coming in documentaton)
 * Get some sample data by cloning [this repo](https://github.com/Openpoint/tradebotdata) into `recorder/data/recording`
 * Record your own data by running `node tradebot recorder` (to keep it running, `nohup node tradebot recorder &`)
-* Run `node tradebot development` to start. The web interface will be at the port specified in the settings.
+* Run `node tradebot development` to start a simulation. The web interface will be at the port specified in the settings.
