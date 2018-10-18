@@ -58,4 +58,14 @@ All numeric values relate to fiat values, corresponding to the ranges in the [gr
 
 Number pairs `[0,0]` denote high/low values.
 * **limits:** [The value before the graph can be considered a peak, the value to change up/down by before the graph can be a peak]
-* **glutlimits:** [The value above which item is in a freny, The +/- value between which item is in a doldrum]
+* **glutlimits:** [The value above which item is in a freny, The +/- range between which item is in a doldrum]
+* **weights:** The addative boost each item gives to `triggers.total` if it meets a criteria.
+* **triggers.total:** The total value limit before triggering a potential trade condition.
+* **cliff:** The general condition where the algorithm considers the market to be in an extreme slide / rise
+** **time:** Time limit before, if a trade is not executed, cliff is unset.
+** **price:** Sudden drop / rise in price that will trigger a cliff.
+** **total:** Same as `triggers.total` except the limit to trigger a 'cliff' condition
+* **emergency:** Condition where that market has moved unfavourably for the algorithm, and it will buy/sell at a loss.
+** **cut:** Time limit since the market was last profitable until tradebot may take emergency action
+** **limit:** The limit the market must have moved away from profit before tradebot will take emergency action.
+
