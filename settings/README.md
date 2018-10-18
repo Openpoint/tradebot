@@ -57,8 +57,8 @@ This is the tuning for the algorithm., and each item can be a number `0`, number
 All numeric values relate to fiat values, corresponding to the ranges in the [graph](https://user-images.githubusercontent.com/998947/47151580-05f97600-d2d2-11e8-88bb-508450b9c019.png)
 
 Number pairs `[0,0]` denote high/low values.
-* **limits:** [The value before the graph can be considered a peak, the value to change up/down by before the graph can be a peak]
-* **glutlimits:** [The value above which item is in a freny, The +/- range between which item is in a doldrum]
+* **limits: [** The value before the graph can be considered a peak **,** the value to change up/down by before the graph can be a peak **]**
+* **glutlimits:** **[** The value above which item is in a freny **,** The +/- range between which item is in a doldrum **]**
 * **weights:** The addative boost each item gives to `triggers.total` if it meets a criteria.
 * **triggers.total:** The total value limit before triggering a potential trade condition.
 * **cliff:** The general condition where the algorithm considers the market to be in an extreme slide / rise
