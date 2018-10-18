@@ -4,7 +4,7 @@ Automated trading on Bitstamp - A work in progress.
 
 Tradebot is an algorithm that tries to predict market volatility and automatically trade at the highs/lows.
 
-At this time, it is very much a work in progress and has, over 3 months of data, successfully turned 1BTC into 1.6BTC.
+At this time, it is very much a work in progress and has, over 3 months of data, successfully simulated 1BTC into 1.6BTC.
 
 Tradebot is a Node.js project providing a http web interface (like the image above) at a specified port. It is set up to trade on [Bitstamp](https://bitstamp.net) in USD.
 
