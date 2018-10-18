@@ -14,7 +14,7 @@ For the brave, and before detailed documentation is available, here is the low-d
 
 * From the root dir of the project, copy `settings/settings_temp.json` to `settings/settings.json`.
 
-* Fill out the ["sauce"](https://github.com/Openpoint/tradebot/blob/master/settings) section of the settings to start tuning your trading strategy.
+* Fill out the "sauce" section of the settings to start tuning your trading strategy. [Help](https://github.com/Openpoint/tradebot/blob/master/settings)
 
 * Get some sample data by cloning [this repo](https://github.com/Openpoint/tradebotdata) into `recorder/data/recording`
 
