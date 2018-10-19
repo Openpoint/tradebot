@@ -8,9 +8,8 @@
 		"pair":"btcusd"
 	},
 	"port":80,
-	"datafile":"tradedata",
 	"sauce":{
-		"glutlimits":{
+		"glutLimits":{
 			"inertia":[0,0],
 			"speed":[0,0],
 			"orders":[0,0],

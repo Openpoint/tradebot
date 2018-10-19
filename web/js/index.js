@@ -26,6 +26,7 @@ socket.on("gotDate",(date)=>{
 	if(!ready) socket.emit("data",daterange);
 });
 socket.on("all",(data)=>{
+	console.log(data);
 	if(ready || !data.Trade.length) return;
 	data = decode(data);
 

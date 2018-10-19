@@ -12,11 +12,11 @@ const Calc = require("./lib/calc.js");
 state.loglevel = 0;
 
 let predict,getter;
-const Buffer = [];
+const loadingBuffer = [];
 
-function batch(q){
-	while (q.length){
-		const item = q.shift();
+function processBatch(batch){
+	while (batch.length){
+		const item = batch.shift();
 		Calc.order({
 			timestamp:item.t.timestamp,
 			bids:item.b,
@@ -24,16 +24,13 @@ function batch(q){
 		},true);
 		predict.addTrade(item.t);
 	}
-	getter.send({batch:true});
-	
+	getter.send({batch:true});	
 }
-
-
 
 Bitstamp.channels.trades.bind("trade", function (data) {
 	if(state.loading && !state.record){
 		data._T = "trades";
-		Buffer.push(data);
+		loadingBuffer.push(data);
 	}else{
 		if(!state.dev) recorder.input(data);
 		if(!state.record) predict.addTrade(data);
@@ -43,7 +40,7 @@ Bitstamp.channels.trades.bind("trade", function (data) {
 Bitstamp.channels.orders.bind("data", function (data) {
 	if(state.loading && !state.record){
 		data._T = "orders";
-		Buffer.push(data);
+		loadingBuffer.push(data);
 	}else{
 		Calc.order(data);
 	}
@@ -68,10 +65,10 @@ if(!state.record){
 		predict = require("./lib/predict.js");
 	
 		getter.on("message",function(m){
-			if(m.batch) batch(m.batch);
+			if(m.batch) processBatch(m.batch);
 			if(m.done){
-				while (Buffer.length) {
-					let item = Buffer.shift();
+				while (loadingBuffer.length) {
+					let item = loadingBuffer.shift();
 					item._T === "trades"?
 						predict.addTrade(item):
 						Calc.order(item);

@@ -12,7 +12,7 @@ For the brave, and before detailed documentation is available, here is the low-d
 
 * Clone this repo onto a Unix like machine, and install the node dependencies with `npm install`.
 
-* From the root dir of the project, copy `settings/settings_temp.json` to `settings/settings.json`.
+* From the root dir of the project, copy `settings/settings_temp.json` to `settings/settings_development.json`.
 
 * Fill out the "sauce" section of the settings to start tuning your trading strategy. [Help](https://github.com/Openpoint/tradebot/blob/master/settings)
 

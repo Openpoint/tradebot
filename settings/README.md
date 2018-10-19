@@ -10,9 +10,8 @@
 		"pair":"btcusd"
 	},
 	"port":80,
-	"datafile":"tradedata",
 	"sauce":{
-		"glutlimits":{
+		"glutLimits":{
 			"inertia":[0,0],
 			"speed":[0,0],
 			"orders":[0,0],
@@ -59,9 +58,9 @@ All numeric values relate to fiat values, corresponding to the ranges in the [gr
 Number pairs `[0,0]` denote high/low values.
 * **limits: [** The value before the graph can be considered a peak **,** the value to change up/down by before the graph can be a peak **]**
 
-* **glutlimits:** **[** The value above which item is in a freny **,** The +/- range between which item is in a doldrum **]**
+* **glutLimits:** **[** The value above which the item is considered to be in a frenzy **,** The +/- range between which the item is considered to be in a doldrum **]**
 
-* **weights:** The addative boost each item gives to `triggers.total` if it meets a criteria.
+* **weights:** The addative boost each item gives to `triggers.total` if it meets an algorithmic criteria.
 
 * **triggers.total:** The total value limit before triggering a potential trade condition.
 
@@ -72,7 +71,7 @@ Number pairs `[0,0]` denote high/low values.
   
 * **emergency:** Condition where that market has moved unfavourably for the algorithm, and it will buy/sell at a loss.
   * **cut:** Time limit since the market was last profitable until tradebot may take emergency action
-  * **limit:** The limit the market must have moved away from profit before tradebot will take emergency action.
+  * **limit:** The limit the market price average must have moved away from profit before tradebot will take emergency action.
   
 * **smoothing:** The time frequency for which all incoming trades will be averaged into one trade item for analysis.
 
