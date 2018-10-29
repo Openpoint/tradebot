@@ -23,3 +23,6 @@ export function printSale(sale){
 	sale = sale[type];
 	Sales.innerHTML += `<div class = "${type}">[${datestamp(sale.timestamp/1000).log}] $${string.fiat(sale.price)}</div>`;
 }
+export function reset(){
+	Sales.innerHTML="";
+}

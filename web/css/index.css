@@ -85,3 +85,14 @@ strong{
     border:1px solid red;
     border-left-width:5px;
 }
+
+#intro{
+    margin-bottom:10px;
+}
+#datePicker{
+    margin:20px 0;
+}
+
+#datePicker input{
+    border:none;
+}

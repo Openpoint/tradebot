@@ -2,9 +2,9 @@
 
 /* eslint-disable no-console */
 import * as tools from "./tools.js";
-import {printSale} from "./sales.js";
+import {printSale,resetSales} from "./sales.js";
 
-let Data = {};
+let Data;
 let minprice;
 export let option;
 let oldZoom;
@@ -17,6 +17,10 @@ export function resetSeries(){
 	Series = {};
 }
 export function init(z,chart){
+	Data = {};
+	tools.reset();
+	resetSales();
+	option = false;
 	myChart = chart;
 	newZoom = z;
 	setData("data");
@@ -76,6 +80,7 @@ export const Make = {
 				Data[update||newZoom].price.price.push([trade.timestamp,trade.price]);
 				Data[update||newZoom].price.average.push([trade.timestamp,trade.average]);
 				Data[update||newZoom].price.target.push([trade.timestamp,trade.target]);
+				Data[update||newZoom].price.peak.push([trade.timestamp,trade.peaks.price]);
 	
 				Data[update||newZoom].trend.trend.push([trade.timestamp,trade.trend]);
 				Data[update||newZoom].trend.peak.push([trade.timestamp,trade.peaks.trend]);
@@ -160,7 +165,8 @@ export function getOption() {
 		series: [
 			new series({name:"Price",type:"line",data:Data[newZoom].price.price,color:"black",width:1.5}),
 			new series({name:"Average",type:"line",data:Data[newZoom].price.average,color:"dodgerblue",width:0.5}),
-			new series({name:"Target",type:"line",data:Data[newZoom].price.target,color:"rgba(0,0,0,.3)",style:"dots",width:1,fill:true,step:"end"}),
+			new series({name:"Target",type:"line",data:Data[newZoom].price.target,color:"rgba(0,0,0,.3)",style:"dots",width:1,fill:true,step:"middle"}),
+			new series({name:"Peak",type:"line",data:Data[newZoom].price.peak,color:"dodgerblue",style:"dots",width:1,step:"middle"}),
 			new series({name:"Buy",type:"scatter",data:Data[newZoom].price.buy,color:"lime"}),
 			new series({name:"Sell",type:"scatter",data:Data[newZoom].price.sell,color:"red"}),
 
@@ -217,7 +223,6 @@ export function getOption() {
 				dataZoom: {
 					yAxisIndex: "none"
 				},
-				//restore: {},
 				saveAsImage: {}
 			}
 		},
@@ -380,7 +385,8 @@ export function setData(level) {
 			buy:(Data[newZoom]?Data[newZoom].price.buy:[]),
 			sell:(Data[newZoom]?Data[newZoom].price.sell:[]),
 			average:[],
-			target:[]
+			target:[],
+			peak:[]
 		},
 		inertia:{
 			inertia:[],

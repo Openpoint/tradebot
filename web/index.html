@@ -8,6 +8,7 @@
     <meta name="description" content="Bitstamp bot">
     <meta name="author" content="Michael Jonker">
     <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" href="node_modules/js-datepicker/datepicker.css">
     <link rel="stylesheet" type="text/css" href="css/index.css">
     <script src="node_modules/echarts/dist/echarts-en.js"></script>
 
@@ -17,13 +18,20 @@
     <div id = "window">
         <div id="chart"></div>
         <div id="panel">
-            <div id="controls">
+
+            <div id="intro">
+                <div>TradeBot is an algorithm for detecting Bitcoin market volatility and automatically trading at the extremes.</div>
+                <div><a href = "https://github.com/Openpoint/tradebot" target = "_blank">Find out more.</a></div>
                 <!--
                 <div class = 'control' id = 'prev'>prev</div>
                 <div class = 'control' id = 'next'>next</div>
                 
                 <div class = "control" id = "dotrade">Test Trade</div>
                 -->
+            </div>
+            <div id = "datePicker">
+                <div><input label = "Start Date" class="start" type="date" /> Start Date</div>
+                <div><input label = "End Date" class="end" type="date" /> End Date</div>
             </div>
             <div id = "sales"></div>
         </div>
@@ -32,6 +40,7 @@
     <script src="tools/encoding.js"></script>
     <script src="tools/money.js"></script>
     <script src="tools/time.js"></script>
+    <script src="node_modules/js-datepicker/datepicker.min.js"></script> 
     <script src="js/index.js" type="module"></script>
 </body>
 </html>

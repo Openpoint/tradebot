@@ -21,3 +21,6 @@ export function printSale(sale){
 		<div>${sale.dir === "buy"?"<strong>":""}BTC:${string.crypto(sale.coin)}${sale.dir === "buy"?"</strong>":""} | ${sale.dir === "sell"?"<strong>":""}$${string.fiat(sale.fiat)}${sale.dir === "sell"?"</strong>":""}</div>
 	</div>`;
 }
+export function resetSales(){
+	Sales.innerHTML="";
+}

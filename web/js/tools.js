@@ -21,6 +21,9 @@ export const times = {
 	year:year
 };
 */
+export function reset(){
+	smooth = {};
+}
 export const zoomLevels = {
 	one:minute,
 	two:15*minute,

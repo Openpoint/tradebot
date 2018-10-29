@@ -7,10 +7,28 @@ import * as tools from "./tools.js";
 import {printSale} from "./sales.js";
 
 const {decode} = tb_encoding;
+const {web} = tb_time;
 const socket = io();
 const myChart = echarts.init(document.getElementById("chart"));
-let daterange;
 let ready = false;
+let init = false;
+let inputStart = document.querySelector("#datePicker .start");
+let inputEnd = document.querySelector("#datePicker .end");
+
+inputStart.onblur = changeDate;
+inputEnd.onblur = changeDate;
+function changeDate(){
+	if(!init || !this.value || !this.checkValidity()){
+		web.resetRange();
+		return;
+	}
+	web.changeRange(this);
+	if(web.changed){
+		myChart.showLoading();
+		ready = false;
+		socket.emit("data",web.dateRange);
+	}
+}
 
 myChart.showLoading();
 myChart.on("datazoom",()=>{
@@ -21,17 +39,23 @@ myChart.on("datazoom",()=>{
 socket.on("connect",()=>{
 	socket.emit("getDate");
 });
-socket.on("gotDate",(date)=>{
-	console.log(date);
-	if(!ready) socket.emit("data",daterange);
+socket.on("gotDate",(range)=>{
+	console.log(range);
+	web.setRange(range);
+	web.setInputs(inputStart,inputEnd);
+	if(!ready) socket.emit("data",web.dateRange);
 });
 socket.on("all",(data)=>{
 	console.log(data);
-	if(ready || !data.Trade.length) return;
+	if(ready) return;
 	data = decode(data);
-
-	let diff = (data.Trade[data.Trade.length-1].timestamp - data.Trade[0].timestamp);
-	let zoom = tools.getZoom(diff);
+	let zoom;
+	if(data.Trade.length > 1){
+		let diff = (data.Trade[data.Trade.length-1].timestamp - data.Trade[0].timestamp);
+		zoom = tools.getZoom(diff);
+	}else{
+		zoom = "data";
+	}
 	plot.init(zoom,myChart);
 	tools.smooth.data = data.Trade;
 	new tools.Smooth(zoom,data.Trade);
@@ -45,6 +69,7 @@ socket.on("all",(data)=>{
 	myChart.setOption(option);
 	myChart.hideLoading();
 	setTimeout(function(){
+		init = true;
 		ready = true;
 	},1000);
 	
@@ -63,6 +88,8 @@ socket.on("update",(data)=>{
 function goBuffer(){
 	ready = false;
 	buffer = decode(buffer);
+	web.updateRange(buffer);
+	
 	let option = myChart.getOption();
 	let diff = (option.dataZoom[0].endValue - option.dataZoom[0].startValue);
 	let zoom = tools.getZoom(diff);
@@ -119,6 +146,9 @@ window.onresize = function() {
 		myChart.resize();
 	},10);
 };
+
+
+
 /*
 document.getElementById("dotrade").addEventListener("click",()=>{
 	if(!ready) return;
