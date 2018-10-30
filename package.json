@@ -12,7 +12,6 @@
     "echarts": "^4.2.0-rc.1",
     "express": "^4.16.3",
     "fs-extra": "^7.0.0",
-    "js-datepicker": "^3.3.5",
     "lz-string": "^1.4.4",
     "pusher-js": "^4.2.2",
     "request": "^2.87.0",

@@ -75,9 +75,11 @@ if(!state.record){
 				}
 				state.loading = false;
 				web.send({loading:false});
+				getter.send({exit:true});
 				Log.info("_______________FINISHED RESTORATION_________________________________");
 			}
 		});
+
 		if(!state.dev){
 			state.trade_dir = wallet.coin && wallet.fiat < 100?"sell":"buy";
 			state.opp_trade_dir = state.trade_dir === "sell"?"buy":"sell";
@@ -87,7 +89,8 @@ if(!state.record){
 		}
 		Log.info(wallet);
 		Log.info("Trading direction: "+state.trade_dir);
-		getter.send({start:"20180615"});
+		//getter.send({start:"20181028"});
+		getter.send({start:""});
 	});
 }
 

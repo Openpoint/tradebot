@@ -29,8 +29,9 @@ if(state.dev){
 }
 
 process.on("message",(m)=>{
-	if (m.start) get(m.start);
+	if (typeof m.start !== "undefined") get(m.start);
 	if (m.batch) commit();
+	if (m.exit) process.exit();
 });
 
 if(!fs.existsSync(dir)) fs.mkdirSync(dir);
@@ -65,13 +66,14 @@ function get(start){
 		process.send({done:true});
 		return;
 	}
-	if(state.dev){
-		if(start) range[0] = start;
+	if(state.dev && start){
+		range[0] = start;
 	}
 	files = fs.readdirSync(dir).filter((file)=>{
 		if(!file.startsWith("record")) return false;
 		const date = parseFloat(file.replace("record",""));
 		if(!range[0]) range[0] = date;
+		
 		if(date < range[0]||date > range[1]) return false;
 		return true;
 	});
